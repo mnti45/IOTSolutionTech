@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ESP32 Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0d0d0d;color:#fff;font-family:Arial;min-height:100vh;}
+
+/* ===== AUTH ===== */
+#authPage{display:flex;justify-content:center;align-items:center;min-height:100vh;}
+.authBox{background:#1a1a1a;padding:32px;border-radius:14px;width:340px;
+         box-shadow:0 0 24px #00ffcc22;}
+.authBox h2{color:#00ffcc;text-align:center;margin-bottom:24px;font-size:20px;}
+.authBox input{width:100%;padding:11px;margin:6px 0;border-radius:8px;
+               border:1px solid #333;background:#252525;color:#fff;font-size:15px;}
+.authBox button{width:100%;padding:11px;background:#00ffcc;color:#111;border:none;
+                border-radius:8px;font-weight:bold;font-size:15px;cursor:pointer;margin-top:10px;}
+.authBox button:hover{background:#00ddb0;}
+.authBox .link{text-align:center;margin-top:12px;font-size:13px;color:#aaa;cursor:pointer;}
+.authBox .link span{color:#00ffcc;}
+.errMsg{color:#ff5555;font-size:13px;text-align:center;margin-top:8px;min-height:18px;}
+
+/* ===== DASHBOARD ===== */
+#dashPage{display:none;padding:16px;}
+.topBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.topBar h2{color:#00ffcc;font-size:20px;}
+.topBar button{padding:7px 16px;background:#333;color:#aaa;border:none;
+               border-radius:8px;cursor:pointer;font-size:13px;}
+.topBar button:hover{background:#444;color:#fff;}
+
+/* Thêm thiết bị */
+.addBox{background:#1a1a1a;border-radius:12px;padding:16px;margin-bottom:20px;
+        display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.addBox input{flex:1;min-width:120px;padding:9px;border-radius:8px;
+              border:1px solid #333;background:#252525;color:#fff;font-size:14px;}
+.addBox button{padding:9px 18px;background:#00ffcc;color:#111;border:none;
+               border-radius:8px;font-weight:bold;cursor:pointer;}
+.addBox button:hover{background:#00ddb0;}
+.addMsg{width:100%;font-size:13px;min-height:16px;}
+.addMsg.ok{color:#00ff88;} .addMsg.err{color:#ff5555;}
+
+/* Cards thiết bị */
+#deviceList{display:flex;flex-wrap:wrap;gap:16px;}
+.devCard{background:#1a1a1a;border-radius:14px;padding:20px;min-width:260px;
+         flex:1;box-shadow:0 0 12px #00ffcc11;}
+.devCard .devTitle{font-size:16px;font-weight:bold;color:#00ffcc;margin-bottom:4px;}
+.devCard .devId{font-size:12px;color:#555;margin-bottom:14px;}
+.devCard .row{display:flex;justify-content:space-between;align-items:center;
+              margin-bottom:10px;}
+.devCard .rowLabel{font-size:13px;color:#aaa;}
+.devCard .rowVal{font-size:18px;font-weight:bold;color:#fff;}
+.devCard .rowUnit{font-size:12px;color:#555;margin-left:3px;}
+
+/* Relay */
+.relayRow{display:flex;justify-content:space-between;align-items:center;
+          background:#252525;border-radius:10px;padding:10px 14px;margin-top:6px;}
+.relayLabel{font-size:13px;color:#aaa;}
+.led{width:22px;height:22px;border-radius:50%;background:#333;transition:all 0.3s;}
+.led.on{background:#00ff88;box-shadow:0 0 10px #00ff88;}
+.led.off{background:#ff4444;box-shadow:0 0 8px #ff4444;}
+.relayBtn{padding:7px 16px;background:#00ffcc;color:#111;border:none;
+          border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer;}
+.relayBtn:hover{background:#00ddb0;}
+.relayStatus{font-size:13px;font-weight:bold;}
+.relayStatus.on{color:#00ff88;} .relayStatus.off{color:#ff4444;}
+.lastUpdate{font-size:11px;color:#444;margin-top:10px;text-align:right;}
+.noDevice{color:#555;text-align:center;padding:40px;width:100%;}
+</style>
+</head>
+<body>
+
+<!-- ===== TRANG ĐĂNG NHẬP / ĐĂNG KÝ ===== -->
+<div id="authPage">
+  <div class="authBox" id="loginBox">
+    <h2>🔐 Đăng nhập</h2>
+    <input type="email"    id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPass"  placeholder="Mật khẩu">
+    <button onclick="doLogin()">Đăng nhập</button>
+    <p class="errMsg" id="loginErr"></p>
+    <p class="link" onclick="showRegister()">Chưa có tài khoản? <span>Đăng ký</span></p>
+  </div>
+  <div class="authBox" id="registerBox" style="display:none">
+    <h2>📝 Đăng ký</h2>
+    <input type="text"     id="regName"  placeholder="Họ tên">
+    <input type="email"    id="regEmail" placeholder="Email">
+    <input type="password" id="regPass"  placeholder="Mật khẩu (tối thiểu 6 ký tự)">
+    <button onclick="doRegister()">Đăng ký</button>
+    <p class="errMsg" id="regErr"></p>
+    <p class="link" onclick="showLogin()">Đã có tài khoản? <span>Đăng nhập</span></p>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dashPage">
+  <div class="topBar">
+    <h2>📊 Dashboard</h2>
+    <button onclick="doLogout()">Đăng xuất</button>
+  </div>
+
+  <!-- Thêm thiết bị -->
+  <div class="addBox">
+    <input id="addId"     placeholder="ID thiết bị (VD: ESP-RELAY-0001)">
+    <input id="addSecret" placeholder="Mã kích hoạt (VD: A3F7)">
+    <button onclick="claimDevice()">+ Thêm thiết bị</button>
+    <p class="addMsg" id="addMsg"></p>
+  </div>
+
+  <!-- Danh sách thiết bị -->
+  <div id="deviceList"><p class="noDevice">Chưa có thiết bị nào. Thêm thiết bị ở trên.</p></div>
+</div>
+
+<script type="module">
+import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword,
+         signInWithEmailAndPassword, signOut,
+         onAuthStateChanged }                     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, get, set, update,
+         onValue }                                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyAGbBQEiilbwkj6Shq4E-HEuWb1l3yaBUI",
+  authDomain:        "esp32-ff6f2.firebaseapp.com",
+  databaseURL:       "https://esp32-ff6f2-default-rtdb.firebaseio.com",
+  projectId:         "esp32-ff6f2",
+  storageBucket:     "esp32-ff6f2.firebasestorage.app",
+  messagingSenderId: "569379349",
+  appId:             "1:569379349:web:e7524620b0496bae941c1c"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getDatabase(app);
+
+let currentUID = null;
+let deviceListeners = {};
+
+// ===== AUTH STATE =====
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUID = user.uid;
+    document.getElementById('authPage').style.display  = 'none';
+    document.getElementById('dashPage').style.display  = 'block';
+    loadDevices();
+  } else {
+    currentUID = null;
+    document.getElementById('authPage').style.display  = 'flex';
+    document.getElementById('dashPage').style.display  = 'none';
+    clearListeners();
+  }
+});
+
+// ===== ĐĂNG NHẬP =====
+window.doLogin = async () => {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  document.getElementById('loginErr').textContent = '';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    document.getElementById('loginErr').textContent = '❌ ' + friendlyError(e.code);
+  }
+};
+
+// ===== ĐĂNG KÝ =====
+window.doRegister = async () => {
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  document.getElementById('regErr').textContent = '';
+  if (!name) { document.getElementById('regErr').textContent = '❌ Nhập họ tên'; return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    // Lưu thông tin user
+    await set(ref(db, 'users/' + cred.user.uid), {
+      name: name, email: email, devices: {}
+    });
+  } catch(e) {
+    document.getElementById('regErr').textContent = '❌ ' + friendlyError(e.code);
+  }
+};
+
+// ===== ĐĂNG XUẤT =====
+window.doLogout = () => signOut(auth);
+
+// ===== CHUYỂN FORM =====
+window.showRegister = () => {
+  document.getElementById('loginBox').style.display    = 'none';
+  document.getElementById('registerBox').style.display = 'block';
+};
+window.showLogin = () => {
+  document.getElementById('loginBox').style.display    = 'block';
+  document.getElementById('registerBox').style.display = 'none';
+};
+
+// ===== KÍCH HOẠT THIẾT BỊ =====
+window.claimDevice = async () => {
+  const devId  = document.getElementById('addId').value.trim().toUpperCase();
+  const secret = document.getElementById('addSecret').value.trim().toUpperCase();
+  const msgEl  = document.getElementById('addMsg');
+  msgEl.className = 'addMsg'; msgEl.textContent = '⏳ Đang kiểm tra...';
+
+  if (!devId || !secret) {
+    msgEl.className = 'addMsg err'; msgEl.textContent = '❌ Nhập đủ ID và mã kích hoạt'; return;
+  }
+
+  const devRef  = ref(db, 'devices/' + devId);
+  const snap    = await get(devRef);
+
+  if (!snap.exists()) {
+    msgEl.className = 'addMsg err'; msgEl.textContent = '❌ Không tìm thấy thiết bị'; return;
+  }
+
+  const dev = snap.val();
+  if (dev.secret !== secret) {
+    msgEl.className = 'addMsg err'; msgEl.textContent = '❌ Mã kích hoạt không đúng'; return;
+  }
+  if (dev.claimed) {
+    msgEl.className = 'addMsg err'; msgEl.textContent = '❌ Thiết bị đã được đăng ký'; return;
+  }
+
+  // Liên kết thiết bị với tài khoản
+  await update(devRef, { claimed: true, owner: currentUID });
+  await set(ref(db, 'users/' + currentUID + '/devices/' + devId), true);
+
+  document.getElementById('addId').value     = '';
+  document.getElementById('addSecret').value = '';
+  msgEl.className = 'addMsg ok';
+  msgEl.textContent = '✅ Thêm thiết bị thành công!';
+  loadDevices();
+};
+
+// ===== TẢI DANH SÁCH THIẾT BỊ =====
+async function loadDevices() {
+  clearListeners();
+  const snap = await get(ref(db, 'users/' + currentUID + '/devices'));
+  const list = document.getElementById('deviceList');
+  list.innerHTML = '';
+
+  if (!snap.exists() || Object.keys(snap.val()).length === 0) {
+    list.innerHTML = '<p class="noDevice">Chưa có thiết bị nào. Thêm thiết bị ở trên.</p>';
+    return;
+  }
+
+  const deviceIds = Object.keys(snap.val());
+  deviceIds.forEach(id => listenDevice(id));
+}
+
+// ===== LẮNG NGHE DỮ LIỆU REALTIME =====
+function listenDevice(devId) {
+  const devRef = ref(db, 'devices/' + devId);
+  const unsub  = onValue(devRef, snap => {
+    if (!snap.exists()) return;
+    renderDevice(devId, snap.val());
+  });
+  deviceListeners[devId] = unsub;
+}
+
+function clearListeners() {
+  Object.values(deviceListeners).forEach(u => u());
+  deviceListeners = {};
+}
+
+// ===== RENDER CARD THIẾT BỊ =====
+function renderDevice(devId, d) {
+  const list     = document.getElementById('deviceList');
+  const noDevEl  = list.querySelector('.noDevice');
+  if (noDevEl) noDevEl.remove();
+
+  let card = document.getElementById('card-' + devId);
+  if (!card) {
+    card = document.createElement('div');
+    card.className = 'devCard';
+    card.id = 'card-' + devId;
+    list.appendChild(card);
+  }
+
+  const features = (d.features || '').split(',');
+  const relayOn  = d.relay === 1;
+  const ts       = d.last_update ? new Date(d.last_update * 1000).toLocaleTimeString('vi-VN') : '--';
+
+  let rows = '';
+  if (features.includes('temp'))
+    rows += `<div class="row"><span class="rowLabel">🌡 Nhiệt độ</span>
+             <span><span class="rowVal">${(d.temp||0).toFixed(1)}</span>
+             <span class="rowUnit">°C</span></span></div>`;
+  if (features.includes('humi'))
+    rows += `<div class="row"><span class="rowLabel">💧 Độ ẩm</span>
+             <span><span class="rowVal">${(d.humi||0).toFixed(1)}</span>
+             <span class="rowUnit">%</span></span></div>`;
+
+  let relayHtml = '';
+  if (features.includes('relay'))
+    relayHtml = `<div class="relayRow">
+      <span class="relayLabel">⚡ Relay</span>
+      <span class="relayStatus ${relayOn?'on':'off'}">${relayOn?'BẬT':'TẮT'}</span>
+      <div class="led ${relayOn?'on':'off'}"></div>
+      <button class="relayBtn" onclick="toggleRelay('${devId}',${relayOn?0:1})">
+        ${relayOn?'Tắt':'Bật'}
+      </button>
+    </div>`;
+
+  card.innerHTML = `
+    <div class="devTitle">${d.name || devId}</div>
+    <div class="devId">${devId}</div>
+    ${rows}
+    ${relayHtml}
+    <div class="lastUpdate">Cập nhật: ${ts}</div>`;
+}
+
+// ===== ĐIỀU KHIỂN RELAY =====
+window.toggleRelay = async (devId, state) => {
+  await update(ref(db, 'devices/' + devId), { relay_cmd: state });
+};
+
+// ===== LỖI THÂN THIỆN =====
+function friendlyError(code) {
+  const map = {
+    'auth/invalid-email':      'Email không hợp lệ',
+    'auth/user-not-found':     'Tài khoản không tồn tại',
+    'auth/wrong-password':     'Sai mật khẩu',
+    'auth/email-already-in-use':'Email đã được sử dụng',
+    'auth/weak-password':      'Mật khẩu quá yếu (tối thiểu 6 ký tự)',
+    'auth/invalid-credential': 'Email hoặc mật khẩu không đúng',
+  };
+  return map[code] || code;
+}
+</script>
+</body>
+</html>
