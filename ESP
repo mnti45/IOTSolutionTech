@@ -3,123 +3,257 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ESP32 Dashboard</title>
+<title>IoT Dashboard</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0d0d0d;color:#fff;font-family:Arial;min-height:100vh;}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#22223a;
+    --accent:#6c63ff;--accent2:#00d4aa;--danger:#ff4757;
+    --text:#e8e8f0;--text2:#8888aa;--border:#2a2a40;
+  }
+  body{background:var(--bg);color:var(--text);font-family:'Inter',Arial,sans-serif;min-height:100vh;}
 
-/* ===== AUTH ===== */
-#authPage{display:flex;justify-content:center;align-items:center;min-height:100vh;}
-.authBox{background:#1a1a1a;padding:32px;border-radius:14px;width:340px;
-         box-shadow:0 0 24px #00ffcc22;}
-.authBox h2{color:#00ffcc;text-align:center;margin-bottom:24px;font-size:20px;}
-.authBox input{width:100%;padding:11px;margin:6px 0;border-radius:8px;
-               border:1px solid #333;background:#252525;color:#fff;font-size:15px;}
-.authBox button{width:100%;padding:11px;background:#00ffcc;color:#111;border:none;
-                border-radius:8px;font-weight:bold;font-size:15px;cursor:pointer;margin-top:10px;}
-.authBox button:hover{background:#00ddb0;}
-.authBox .link{text-align:center;margin-top:12px;font-size:13px;color:#aaa;cursor:pointer;}
-.authBox .link span{color:#00ffcc;}
-.errMsg{color:#ff5555;font-size:13px;text-align:center;margin-top:8px;min-height:18px;}
+  /* ===== AUTH ===== */
+  #authPage{
+    display:flex;justify-content:center;align-items:center;
+    min-height:100vh;padding:20px;
+    background:radial-gradient(ellipse at 50% 0%,#1a1040 0%,var(--bg) 70%);
+  }
+  .authWrap{width:100%;max-width:420px;}
+  .authLogo{text-align:center;margin-bottom:32px;}
+  .authLogo .icon{font-size:48px;margin-bottom:8px;}
+  .authLogo h1{font-size:24px;font-weight:700;color:var(--text);letter-spacing:-0.5px;}
+  .authLogo p{font-size:14px;color:var(--text2);margin-top:4px;}
+  .authBox{
+    background:var(--bg2);border:1px solid var(--border);
+    border-radius:20px;padding:32px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.4);
+  }
+  .authBox h2{font-size:20px;font-weight:600;margin-bottom:24px;color:var(--text);}
+  .formGroup{margin-bottom:16px;}
+  .formGroup label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500;}
+  .formGroup input{
+    width:100%;padding:12px 14px;border-radius:10px;
+    border:1px solid var(--border);background:var(--bg3);
+    color:var(--text);font-size:15px;font-family:inherit;
+    transition:border-color 0.2s;outline:none;
+  }
+  .formGroup input:focus{border-color:var(--accent);}
+  .btnPrimary{
+    width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#8b5cf6);
+    color:#fff;border:none;border-radius:10px;font-weight:600;
+    font-size:15px;cursor:pointer;font-family:inherit;
+    transition:opacity 0.2s,transform 0.1s;margin-top:8px;
+  }
+  .btnPrimary:hover{opacity:0.9;}
+  .btnPrimary:active{transform:scale(0.98);}
+  .authSwitch{text-align:center;margin-top:20px;font-size:14px;color:var(--text2);}
+  .authSwitch a{color:var(--accent);cursor:pointer;font-weight:500;text-decoration:none;}
+  .authSwitch a:hover{text-decoration:underline;}
+  .errMsg{
+    background:#ff475720;border:1px solid #ff475740;
+    color:#ff6b7a;border-radius:8px;padding:10px 14px;
+    font-size:13px;margin-top:12px;display:none;
+  }
+  .divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+  .divider hr{flex:1;border:none;border-top:1px solid var(--border);}
+  .divider span{font-size:12px;color:var(--text2);}
 
-/* ===== DASHBOARD ===== */
-#dashPage{display:none;padding:16px;}
-.topBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-.topBar h2{color:#00ffcc;font-size:20px;}
-.topBar button{padding:7px 16px;background:#333;color:#aaa;border:none;
-               border-radius:8px;cursor:pointer;font-size:13px;}
-.topBar button:hover{background:#444;color:#fff;}
+  /* ===== DASHBOARD ===== */
+  #dashPage{display:none;min-height:100vh;}
+  .navbar{
+    background:var(--bg2);border-bottom:1px solid var(--border);
+    padding:0 24px;height:60px;display:flex;align-items:center;
+    justify-content:space-between;position:sticky;top:0;z-index:100;
+  }
+  .navLogo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;}
+  .navLogo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);
+                box-shadow:0 0 8px var(--accent2);}
+  .navRight{display:flex;align-items:center;gap:12px;}
+  .navUser{font-size:13px;color:var(--text2);}
+  .btnLogout{
+    padding:7px 16px;background:var(--bg3);border:1px solid var(--border);
+    color:var(--text2);border-radius:8px;cursor:pointer;font-size:13px;
+    font-family:inherit;transition:all 0.2s;
+  }
+  .btnLogout:hover{border-color:var(--danger);color:var(--danger);}
 
-/* Thêm thiết bị */
-.addBox{background:#1a1a1a;border-radius:12px;padding:16px;margin-bottom:20px;
-        display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-.addBox input{flex:1;min-width:120px;padding:9px;border-radius:8px;
-              border:1px solid #333;background:#252525;color:#fff;font-size:14px;}
-.addBox button{padding:9px 18px;background:#00ffcc;color:#111;border:none;
-               border-radius:8px;font-weight:bold;cursor:pointer;}
-.addBox button:hover{background:#00ddb0;}
-.addMsg{width:100%;font-size:13px;min-height:16px;}
-.addMsg.ok{color:#00ff88;} .addMsg.err{color:#ff5555;}
+  .dashContent{padding:24px;max-width:1100px;margin:0 auto;}
 
-/* Cards thiết bị */
-#deviceList{display:flex;flex-wrap:wrap;gap:16px;}
-.devCard{background:#1a1a1a;border-radius:14px;padding:20px;min-width:260px;
-         flex:1;box-shadow:0 0 12px #00ffcc11;}
-.devCard .devTitle{font-size:16px;font-weight:bold;color:#00ffcc;margin-bottom:4px;}
-.devCard .devId{font-size:12px;color:#555;margin-bottom:14px;}
-.devCard .row{display:flex;justify-content:space-between;align-items:center;
-              margin-bottom:10px;}
-.devCard .rowLabel{font-size:13px;color:#aaa;}
-.devCard .rowVal{font-size:18px;font-weight:bold;color:#fff;}
-.devCard .rowUnit{font-size:12px;color:#555;margin-left:3px;}
+  /* Add device */
+  .addSection{
+    background:var(--bg2);border:1px solid var(--border);
+    border-radius:16px;padding:20px;margin-bottom:24px;
+  }
+  .addSection h3{font-size:15px;font-weight:600;margin-bottom:14px;color:var(--text);}
+  .addRow{display:flex;gap:10px;flex-wrap:wrap;}
+  .addRow input{
+    flex:1;min-width:150px;padding:10px 14px;border-radius:10px;
+    border:1px solid var(--border);background:var(--bg3);
+    color:var(--text);font-size:14px;font-family:inherit;outline:none;
+    transition:border-color 0.2s;
+  }
+  .addRow input:focus{border-color:var(--accent);}
+  .btnAdd{
+    padding:10px 20px;background:linear-gradient(135deg,var(--accent2),#00b894);
+    color:#fff;border:none;border-radius:10px;font-weight:600;
+    font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap;
+    transition:opacity 0.2s;
+  }
+  .btnAdd:hover{opacity:0.85;}
+  .addFeedback{width:100%;font-size:13px;margin-top:8px;min-height:18px;}
+  .addFeedback.ok{color:var(--accent2);}
+  .addFeedback.err{color:var(--danger);}
 
-/* Relay */
-.relayRow{display:flex;justify-content:space-between;align-items:center;
-          background:#252525;border-radius:10px;padding:10px 14px;margin-top:6px;}
-.relayLabel{font-size:13px;color:#aaa;}
-.led{width:22px;height:22px;border-radius:50%;background:#333;transition:all 0.3s;}
-.led.on{background:#00ff88;box-shadow:0 0 10px #00ff88;}
-.led.off{background:#ff4444;box-shadow:0 0 8px #ff4444;}
-.relayBtn{padding:7px 16px;background:#00ffcc;color:#111;border:none;
-          border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer;}
-.relayBtn:hover{background:#00ddb0;}
-.relayStatus{font-size:13px;font-weight:bold;}
-.relayStatus.on{color:#00ff88;} .relayStatus.off{color:#ff4444;}
-.lastUpdate{font-size:11px;color:#444;margin-top:10px;text-align:right;}
-.noDevice{color:#555;text-align:center;padding:40px;width:100%;}
+  /* Device grid */
+  .sectionTitle{font-size:16px;font-weight:600;margin-bottom:16px;color:var(--text);}
+  #deviceGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+
+  .devCard{
+    background:var(--bg2);border:1px solid var(--border);
+    border-radius:16px;padding:20px;transition:border-color 0.2s;
+    position:relative;overflow:hidden;
+  }
+  .devCard::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+  }
+  .devCard:hover{border-color:#3a3a55;}
+  .devCardHead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+  .devCardTitle{font-size:15px;font-weight:600;color:var(--text);}
+  .devCardId{font-size:11px;color:var(--text2);margin-top:3px;}
+  .statusBadge{
+    font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;
+    background:#00d4aa20;color:var(--accent2);border:1px solid #00d4aa30;
+  }
+
+  .sensorGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .sensorItem{background:var(--bg3);border-radius:10px;padding:12px;}
+  .sensorItem .sLabel{font-size:11px;color:var(--text2);margin-bottom:4px;}
+  .sensorItem .sVal{font-size:22px;font-weight:700;color:var(--text);}
+  .sensorItem .sUnit{font-size:12px;color:var(--text2);margin-left:2px;}
+
+  .relayControl{
+    background:var(--bg3);border-radius:10px;padding:12px 14px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .relayLeft{display:flex;align-items:center;gap:10px;}
+  .relayDot{width:12px;height:12px;border-radius:50%;background:#333;transition:all 0.3s;flex-shrink:0;}
+  .relayDot.on{background:#00ff88;box-shadow:0 0 10px #00ff88;}
+  .relayDot.off{background:var(--danger);box-shadow:0 0 8px var(--danger);}
+  .relayInfo .rLabel{font-size:12px;color:var(--text2);}
+  .relayInfo .rStatus{font-size:14px;font-weight:600;}
+  .rStatus.on{color:#00ff88;} .rStatus.off{color:var(--danger);}
+  .btnToggle{
+    padding:7px 18px;border:none;border-radius:8px;font-weight:600;
+    font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.2s;
+  }
+  .btnToggle.toOn{background:#00d4aa20;color:var(--accent2);border:1px solid #00d4aa40;}
+  .btnToggle.toOn:hover{background:#00d4aa30;}
+  .btnToggle.toOff{background:#ff475720;color:var(--danger);border:1px solid #ff475740;}
+  .btnToggle.toOff:hover{background:#ff475730;}
+
+  .devCardFoot{margin-top:12px;font-size:11px;color:#444;text-align:right;}
+
+  .emptyState{
+    grid-column:1/-1;text-align:center;padding:60px 20px;
+    color:var(--text2);
+  }
+  .emptyState .emptyIcon{font-size:48px;margin-bottom:12px;}
+  .emptyState p{font-size:15px;}
 </style>
 </head>
 <body>
 
-<!-- ===== TRANG ĐĂNG NHẬP / ĐĂNG KÝ ===== -->
+<!-- AUTH -->
 <div id="authPage">
-  <div class="authBox" id="loginBox">
-    <h2>🔐 Đăng nhập</h2>
-    <input type="email"    id="loginEmail" placeholder="Email">
-    <input type="password" id="loginPass"  placeholder="Mật khẩu">
-    <button onclick="doLogin()">Đăng nhập</button>
-    <p class="errMsg" id="loginErr"></p>
-    <p class="link" onclick="showRegister()">Chưa có tài khoản? <span>Đăng ký</span></p>
-  </div>
-  <div class="authBox" id="registerBox" style="display:none">
-    <h2>📝 Đăng ký</h2>
-    <input type="text"     id="regName"  placeholder="Họ tên">
-    <input type="email"    id="regEmail" placeholder="Email">
-    <input type="password" id="regPass"  placeholder="Mật khẩu (tối thiểu 6 ký tự)">
-    <button onclick="doRegister()">Đăng ký</button>
-    <p class="errMsg" id="regErr"></p>
-    <p class="link" onclick="showLogin()">Đã có tài khoản? <span>Đăng nhập</span></p>
+  <div class="authWrap">
+    <div class="authLogo">
+      <div class="icon">⚡</div>
+      <h1>IoT Dashboard</h1>
+      <p>Quản lý thiết bị thông minh</p>
+    </div>
+
+    <!-- Login -->
+    <div class="authBox" id="loginBox">
+      <h2>Đăng nhập</h2>
+      <div class="formGroup">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com">
+      </div>
+      <div class="formGroup">
+        <label>Mật khẩu</label>
+        <input type="password" id="loginPass" placeholder="••••••••">
+      </div>
+      <button class="btnPrimary" onclick="doLogin()">Đăng nhập</button>
+      <div class="errMsg" id="loginErr"></div>
+      <div class="authSwitch">Chưa có tài khoản? <a onclick="showRegister()">Đăng ký ngay</a></div>
+    </div>
+
+    <!-- Register -->
+    <div class="authBox" id="registerBox" style="display:none">
+      <h2>Tạo tài khoản</h2>
+      <div class="formGroup">
+        <label>Họ tên</label>
+        <input type="text" id="regName" placeholder="Nguyễn Văn A">
+      </div>
+      <div class="formGroup">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="you@example.com">
+      </div>
+      <div class="formGroup">
+        <label>Mật khẩu</label>
+        <input type="password" id="regPass" placeholder="Tối thiểu 6 ký tự">
+      </div>
+      <button class="btnPrimary" onclick="doRegister()">Tạo tài khoản</button>
+      <div class="errMsg" id="regErr"></div>
+      <div class="authSwitch">Đã có tài khoản? <a onclick="showLogin()">Đăng nhập</a></div>
+    </div>
   </div>
 </div>
 
-<!-- ===== DASHBOARD ===== -->
+<!-- DASHBOARD -->
 <div id="dashPage">
-  <div class="topBar">
-    <h2>📊 Dashboard</h2>
-    <button onclick="doLogout()">Đăng xuất</button>
-  </div>
+  <nav class="navbar">
+    <div class="navLogo">
+      <div class="dot"></div>
+      IoT Dashboard
+    </div>
+    <div class="navRight">
+      <span class="navUser" id="navEmail"></span>
+      <button class="btnLogout" onclick="doLogout()">Đăng xuất</button>
+    </div>
+  </nav>
 
-  <!-- Thêm thiết bị -->
-  <div class="addBox">
-    <input id="addId"     placeholder="ID thiết bị (VD: ESP-RELAY-0001)">
-    <input id="addSecret" placeholder="Mã kích hoạt (VD: A3F7)">
-    <button onclick="claimDevice()">+ Thêm thiết bị</button>
-    <p class="addMsg" id="addMsg"></p>
-  </div>
+  <div class="dashContent">
+    <div class="addSection">
+      <h3>➕ Thêm thiết bị mới</h3>
+      <div class="addRow">
+        <input id="addId"     placeholder="ID thiết bị (VD: ESP001)">
+        <input id="addSecret" placeholder="Mã kích hoạt (VD: A3F7)">
+        <button class="btnAdd" onclick="claimDevice()">Thêm thiết bị</button>
+      </div>
+      <div class="addFeedback" id="addMsg"></div>
+    </div>
 
-  <!-- Danh sách thiết bị -->
-  <div id="deviceList"><p class="noDevice">Chưa có thiết bị nào. Thêm thiết bị ở trên.</p></div>
+    <div class="sectionTitle">Thiết bị của bạn</div>
+    <div id="deviceGrid">
+      <div class="emptyState">
+        <div class="emptyIcon">📡</div>
+        <p>Chưa có thiết bị nào. Thêm thiết bị ở trên.</p>
+      </div>
+    </div>
+  </div>
 </div>
 
-<script type="module">
-import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword,
-         signInWithEmailAndPassword, signOut,
-         onAuthStateChanged }                     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, get, set, update,
-         onValue }                                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-const firebaseConfig = {
+<script>
+firebase.initializeApp({
   apiKey:            "AIzaSyAGbBQEiilbwkj6Shq4E-HEuWb1l3yaBUI",
   authDomain:        "esp32-ff6f2.firebaseapp.com",
   databaseURL:       "https://esp32-ff6f2-default-rtdb.firebaseio.com",
@@ -127,204 +261,195 @@ const firebaseConfig = {
   storageBucket:     "esp32-ff6f2.firebasestorage.app",
   messagingSenderId: "569379349",
   appId:             "1:569379349:web:e7524620b0496bae941c1c"
-};
+});
 
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getDatabase(app);
-
-let currentUID = null;
-let deviceListeners = {};
+const auth = firebase.auth();
+const db   = firebase.database();
+let uid = null, listeners = {};
 
 // ===== AUTH STATE =====
-onAuthStateChanged(auth, user => {
+auth.onAuthStateChanged(user => {
   if (user) {
-    currentUID = user.uid;
-    document.getElementById('authPage').style.display  = 'none';
-    document.getElementById('dashPage').style.display  = 'block';
+    uid = user.uid;
+    document.getElementById('navEmail').textContent = user.email;
+    document.getElementById('authPage').style.display = 'none';
+    document.getElementById('dashPage').style.display = 'block';
     loadDevices();
   } else {
-    currentUID = null;
-    document.getElementById('authPage').style.display  = 'flex';
-    document.getElementById('dashPage').style.display  = 'none';
+    uid = null;
     clearListeners();
+    document.getElementById('authPage').style.display = 'flex';
+    document.getElementById('dashPage').style.display = 'none';
   }
 });
 
-// ===== ĐĂNG NHẬP =====
-window.doLogin = async () => {
+// ===== LOGIN =====
+function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pass  = document.getElementById('loginPass').value;
-  document.getElementById('loginErr').textContent = '';
-  try {
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch(e) {
-    document.getElementById('loginErr').textContent = '❌ ' + friendlyError(e.code);
-  }
-};
+  const errEl = document.getElementById('loginErr');
+  errEl.style.display = 'none';
+  auth.signInWithEmailAndPassword(email, pass)
+    .catch(e => { errEl.textContent = friendlyErr(e.code); errEl.style.display = 'block'; });
+}
 
-// ===== ĐĂNG KÝ =====
-window.doRegister = async () => {
+// ===== REGISTER =====
+function doRegister() {
   const name  = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const pass  = document.getElementById('regPass').value;
-  document.getElementById('regErr').textContent = '';
-  if (!name) { document.getElementById('regErr').textContent = '❌ Nhập họ tên'; return; }
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    // Lưu thông tin user
-    await set(ref(db, 'users/' + cred.user.uid), {
-      name: name, email: email, devices: {}
-    });
-  } catch(e) {
-    document.getElementById('regErr').textContent = '❌ ' + friendlyError(e.code);
-  }
-};
+  const errEl = document.getElementById('regErr');
+  errEl.style.display = 'none';
+  if (!name) { errEl.textContent = 'Vui lòng nhập họ tên'; errEl.style.display='block'; return; }
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(c => db.ref('users/' + c.user.uid).set({ name, email, devices: {} }))
+    .catch(e => { errEl.textContent = friendlyErr(e.code); errEl.style.display = 'block'; });
+}
 
-// ===== ĐĂNG XUẤT =====
-window.doLogout = () => signOut(auth);
-
-// ===== CHUYỂN FORM =====
-window.showRegister = () => {
+function doLogout() { auth.signOut(); }
+function showRegister() {
   document.getElementById('loginBox').style.display    = 'none';
   document.getElementById('registerBox').style.display = 'block';
-};
-window.showLogin = () => {
+}
+function showLogin() {
   document.getElementById('loginBox').style.display    = 'block';
   document.getElementById('registerBox').style.display = 'none';
-};
+}
 
-// ===== KÍCH HOẠT THIẾT BỊ =====
-window.claimDevice = async () => {
+// ===== CLAIM DEVICE =====
+function claimDevice() {
   const devId  = document.getElementById('addId').value.trim().toUpperCase();
   const secret = document.getElementById('addSecret').value.trim().toUpperCase();
   const msgEl  = document.getElementById('addMsg');
-  msgEl.className = 'addMsg'; msgEl.textContent = '⏳ Đang kiểm tra...';
+  msgEl.className = 'addFeedback'; msgEl.textContent = '⏳ Đang kiểm tra...';
 
   if (!devId || !secret) {
-    msgEl.className = 'addMsg err'; msgEl.textContent = '❌ Nhập đủ ID và mã kích hoạt'; return;
+    msgEl.className = 'addFeedback err'; msgEl.textContent = '❌ Nhập đủ ID và mã kích hoạt'; return;
   }
-
-  const devRef  = ref(db, 'devices/' + devId);
-  const snap    = await get(devRef);
-
-  if (!snap.exists()) {
-    msgEl.className = 'addMsg err'; msgEl.textContent = '❌ Không tìm thấy thiết bị'; return;
-  }
-
-  const dev = snap.val();
-  if (dev.secret !== secret) {
-    msgEl.className = 'addMsg err'; msgEl.textContent = '❌ Mã kích hoạt không đúng'; return;
-  }
-  if (dev.claimed) {
-    msgEl.className = 'addMsg err'; msgEl.textContent = '❌ Thiết bị đã được đăng ký'; return;
-  }
-
-  // Liên kết thiết bị với tài khoản
-  await update(devRef, { claimed: true, owner: currentUID });
-  await set(ref(db, 'users/' + currentUID + '/devices/' + devId), true);
-
-  document.getElementById('addId').value     = '';
-  document.getElementById('addSecret').value = '';
-  msgEl.className = 'addMsg ok';
-  msgEl.textContent = '✅ Thêm thiết bị thành công!';
-  loadDevices();
-};
-
-// ===== TẢI DANH SÁCH THIẾT BỊ =====
-async function loadDevices() {
-  clearListeners();
-  const snap = await get(ref(db, 'users/' + currentUID + '/devices'));
-  const list = document.getElementById('deviceList');
-  list.innerHTML = '';
-
-  if (!snap.exists() || Object.keys(snap.val()).length === 0) {
-    list.innerHTML = '<p class="noDevice">Chưa có thiết bị nào. Thêm thiết bị ở trên.</p>';
-    return;
-  }
-
-  const deviceIds = Object.keys(snap.val());
-  deviceIds.forEach(id => listenDevice(id));
+  db.ref('devices/' + devId).once('value').then(snap => {
+    if (!snap.exists()) {
+      msgEl.className = 'addFeedback err'; msgEl.textContent = '❌ Không tìm thấy thiết bị'; return;
+    }
+    const d = snap.val();
+    if (d.secret !== secret) {
+      msgEl.className = 'addFeedback err'; msgEl.textContent = '❌ Mã kích hoạt không đúng'; return;
+    }
+    if (d.claimed) {
+      msgEl.className = 'addFeedback err'; msgEl.textContent = '❌ Thiết bị đã được đăng ký'; return;
+    }
+    db.ref('devices/' + devId).update({ claimed: true, owner: uid });
+    db.ref('users/' + uid + '/devices/' + devId).set(true);
+    document.getElementById('addId').value = '';
+    document.getElementById('addSecret').value = '';
+    msgEl.className = 'addFeedback ok'; msgEl.textContent = '✅ Thêm thiết bị thành công!';
+    loadDevices();
+  });
 }
 
-// ===== LẮNG NGHE DỮ LIỆU REALTIME =====
-function listenDevice(devId) {
-  const devRef = ref(db, 'devices/' + devId);
-  const unsub  = onValue(devRef, snap => {
-    if (!snap.exists()) return;
-    renderDevice(devId, snap.val());
+// ===== LOAD DEVICES =====
+function loadDevices() {
+  clearListeners();
+  db.ref('users/' + uid + '/devices').once('value').then(snap => {
+    const grid = document.getElementById('deviceGrid');
+    if (!snap.exists() || !snap.val()) {
+      grid.innerHTML = '<div class="emptyState"><div class="emptyIcon">📡</div><p>Chưa có thiết bị nào. Thêm thiết bị ở trên.</p></div>';
+      return;
+    }
+    grid.innerHTML = '';
+    Object.keys(snap.val()).forEach(id => listenDevice(id));
   });
-  deviceListeners[devId] = unsub;
+}
+
+// ===== REALTIME LISTENER =====
+function listenDevice(devId) {
+  const ref = db.ref('devices/' + devId);
+  const cb  = ref.on('value', snap => {
+    if (snap.exists()) renderCard(devId, snap.val());
+  });
+  listeners[devId] = { ref, cb };
 }
 
 function clearListeners() {
-  Object.values(deviceListeners).forEach(u => u());
-  deviceListeners = {};
+  Object.values(listeners).forEach(l => l.ref.off('value', l.cb));
+  listeners = {};
 }
 
-// ===== RENDER CARD THIẾT BỊ =====
-function renderDevice(devId, d) {
-  const list     = document.getElementById('deviceList');
-  const noDevEl  = list.querySelector('.noDevice');
-  if (noDevEl) noDevEl.remove();
+// ===== RENDER CARD =====
+function renderCard(devId, d) {
+  const grid = document.getElementById('deviceGrid');
+  const empty = grid.querySelector('.emptyState');
+  if (empty) empty.remove();
 
   let card = document.getElementById('card-' + devId);
   if (!card) {
     card = document.createElement('div');
     card.className = 'devCard';
     card.id = 'card-' + devId;
-    list.appendChild(card);
+    grid.appendChild(card);
   }
 
   const features = (d.features || '').split(',');
   const relayOn  = d.relay === 1;
-  const ts       = d.last_update ? new Date(d.last_update * 1000).toLocaleTimeString('vi-VN') : '--';
+  const ts = d.last_update
+    ? new Date(d.last_update * 1000).toLocaleTimeString('vi-VN')
+    : '--';
 
-  let rows = '';
+  let sensors = '';
   if (features.includes('temp'))
-    rows += `<div class="row"><span class="rowLabel">🌡 Nhiệt độ</span>
-             <span><span class="rowVal">${(d.temp||0).toFixed(1)}</span>
-             <span class="rowUnit">°C</span></span></div>`;
+    sensors += `<div class="sensorItem">
+      <div class="sLabel">🌡 Nhiệt độ</div>
+      <div><span class="sVal">${(d.temp||0).toFixed(1)}</span><span class="sUnit">°C</span></div>
+    </div>`;
   if (features.includes('humi'))
-    rows += `<div class="row"><span class="rowLabel">💧 Độ ẩm</span>
-             <span><span class="rowVal">${(d.humi||0).toFixed(1)}</span>
-             <span class="rowUnit">%</span></span></div>`;
+    sensors += `<div class="sensorItem">
+      <div class="sLabel">💧 Độ ẩm</div>
+      <div><span class="sVal">${(d.humi||0).toFixed(1)}</span><span class="sUnit">%</span></div>
+    </div>`;
 
   let relayHtml = '';
   if (features.includes('relay'))
-    relayHtml = `<div class="relayRow">
-      <span class="relayLabel">⚡ Relay</span>
-      <span class="relayStatus ${relayOn?'on':'off'}">${relayOn?'BẬT':'TẮT'}</span>
-      <div class="led ${relayOn?'on':'off'}"></div>
-      <button class="relayBtn" onclick="toggleRelay('${devId}',${relayOn?0:1})">
+    relayHtml = `<div class="relayControl">
+      <div class="relayLeft">
+        <div class="relayDot ${relayOn?'on':'off'}"></div>
+        <div class="relayInfo">
+          <div class="rLabel">⚡ Relay</div>
+          <div class="rStatus ${relayOn?'on':'off'}">${relayOn?'Đang bật':'Đang tắt'}</div>
+        </div>
+      </div>
+      <button class="btnToggle ${relayOn?'toOff':'toOn'}"
+              onclick="toggleRelay('${devId}',${relayOn?0:1})">
         ${relayOn?'Tắt':'Bật'}
       </button>
     </div>`;
 
   card.innerHTML = `
-    <div class="devTitle">${d.name || devId}</div>
-    <div class="devId">${devId}</div>
-    ${rows}
+    <div class="devCardHead">
+      <div>
+        <div class="devCardTitle">${d.name || devId}</div>
+        <div class="devCardId">${devId}</div>
+      </div>
+      <span class="statusBadge">● Online</span>
+    </div>
+    ${sensors ? '<div class="sensorGrid">' + sensors + '</div>' : ''}
     ${relayHtml}
-    <div class="lastUpdate">Cập nhật: ${ts}</div>`;
+    <div class="devCardFoot">Cập nhật lúc ${ts}</div>`;
 }
 
-// ===== ĐIỀU KHIỂN RELAY =====
-window.toggleRelay = async (devId, state) => {
-  await update(ref(db, 'devices/' + devId), { relay_cmd: state });
-};
+// ===== TOGGLE RELAY =====
+function toggleRelay(devId, state) {
+  db.ref('devices/' + devId).update({ relay_cmd: state });
+}
 
-// ===== LỖI THÂN THIỆN =====
-function friendlyError(code) {
-  const map = {
-    'auth/invalid-email':      'Email không hợp lệ',
-    'auth/user-not-found':     'Tài khoản không tồn tại',
-    'auth/wrong-password':     'Sai mật khẩu',
+// ===== ERROR MESSAGES =====
+function friendlyErr(code) {
+  return ({
+    'auth/invalid-email':       'Email không hợp lệ',
+    'auth/user-not-found':      'Tài khoản không tồn tại',
+    'auth/wrong-password':      'Sai mật khẩu',
+    'auth/invalid-credential':  'Email hoặc mật khẩu không đúng',
     'auth/email-already-in-use':'Email đã được sử dụng',
-    'auth/weak-password':      'Mật khẩu quá yếu (tối thiểu 6 ký tự)',
-    'auth/invalid-credential': 'Email hoặc mật khẩu không đúng',
-  };
-  return map[code] || code;
+    'auth/weak-password':       'Mật khẩu tối thiểu 6 ký tự',
+  })[code] || 'Lỗi: ' + code;
 }
 </script>
 </body>
