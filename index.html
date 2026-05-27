@@ -43,14 +43,24 @@ button,input,select{font-family:inherit;}
 
 /* DASHBOARD */
 #dashPage{display:none;}
-.layout{display:flex;min-height:100vh;}
-.sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);
-  padding:20px 0;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:50;}
+.layout{display:block;min-height:100vh;}
+.menuOverlay{position:fixed;inset:0;background:#0009;backdrop-filter:blur(2px);
+  opacity:0;pointer-events:none;transition:.2s;z-index:60;}
+.menuOpen .menuOverlay{opacity:1;pointer-events:auto;}
+.sidebar{width:min(88vw,360px);background:var(--bg2);border-right:1px solid var(--border);
+  padding:20px 0;display:flex;flex-direction:column;position:fixed;left:0;top:0;height:100vh;
+  z-index:70;transform:translateX(-105%);transition:.22s ease;box-shadow:18px 0 40px #0007;overflow-y:auto;}
+.menuOpen .sidebar{transform:translateX(0);}
 .sidebarLogo{padding:0 20px 18px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.logoRow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .sidebarLogo .logoIcon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));
   border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px;}
 .sidebarLogo h2{font-size:15px;font-weight:700;}
 .sidebarLogo p{font-size:11px;color:var(--text2);}
+.menuClose,.menuBtn{border:1px solid var(--border);background:var(--bg2);color:var(--text);
+  border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.menuClose{width:36px;height:36px;font-size:20px;flex-shrink:0;}
+.menuBtn{width:42px;height:42px;font-size:22px;background:var(--bg3);}
 .sideNav{padding:0 10px 12px;}
 .navItem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
   font-size:14px;color:var(--text2);cursor:pointer;transition:.15s;margin-bottom:2px;border:1px solid transparent;}
@@ -75,8 +85,9 @@ button,input,select{font-family:inherit;}
   color:var(--text2);border-radius:8px;cursor:pointer;font-size:13px;transition:.2s;}
 .btnLogout:hover{border-color:var(--red);color:var(--red);}
 
-.main{margin-left:260px;flex:1;padding:24px;}
-.topBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px;}
+.main{margin-left:0;flex:1;padding:24px;max-width:1180px;margin-right:auto;margin-left:auto;}
+.topBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:12px;}
+.topLeft{display:flex;align-items:center;gap:12px;min-width:0;}
 .topBar h1{font-size:20px;font-weight:700;}
 .topBar p{font-size:13px;color:var(--text2);margin-top:2px;}
 .onlineBadge{display:flex;align-items:center;gap:6px;background:var(--bg2);
@@ -157,10 +168,19 @@ button,input,select{font-family:inherit;}
 .legendDot.humi{background:#38bdf8;}
 
 @media(max-width:840px){
-  .sidebar{position:static;width:100%;height:auto;}
-  .layout{display:block;}
-  .main{margin-left:0;padding:18px;}
-  .topBar{align-items:flex-start;flex-direction:column;}
+  .main{padding:16px 14px 22px;}
+  .topBar{align-items:flex-start;}
+  .topBar h1{font-size:24px;}
+  .onlineBadge{font-size:12px;padding:6px 10px;}
+  .sectionHead{margin-bottom:10px;}
+  .sectionHead h2{font-size:14px;}
+  #deviceGrid{gap:12px;}
+  .devCard{border-radius:18px;}
+  .devCardTop{padding:18px 16px 14px;}
+  .sensorRow{gap:12px;}
+  .sensorChip{padding:14px 12px;text-align:center;}
+  .sensorChip .scLabel{font-size:12px;}
+  .sensorChip .scVal{font-size:26px;}
   .settingsGrid,#deviceGrid{grid-template-columns:1fr;}
 }
 </style>
@@ -201,11 +221,17 @@ button,input,select{font-family:inherit;}
 
 <div id="dashPage">
   <div class="layout">
+    <div class="menuOverlay" onclick="closeMenu()"></div>
     <aside class="sidebar">
       <div class="sidebarLogo">
-        <div class="logoIcon">🏠</div>
-        <h2>Smart Home</h2>
-        <p>IoT Dashboard</p>
+        <div class="logoRow">
+          <div>
+            <div class="logoIcon">🏠</div>
+            <h2>Smart Home</h2>
+            <p>IoT Dashboard</p>
+          </div>
+          <button class="menuClose" onclick="closeMenu()" aria-label="Đóng menu">×</button>
+        </div>
       </div>
       <nav class="sideNav">
         <div class="navItem active" data-section="devices" onclick="switchSection('devices')"><span class="icon">💡</span> Thiết bị</div>
@@ -230,9 +256,12 @@ button,input,select{font-family:inherit;}
 
     <main class="main">
       <div class="topBar">
-        <div>
-          <h1 id="pageTitle">Thiết bị</h1>
-          <p id="greeting">Chào mừng trở lại!</p>
+        <div class="topLeft">
+          <button class="menuBtn" onclick="openMenu()" aria-label="Mở menu">☰</button>
+          <div>
+            <h1 id="pageTitle">Thiết bị</h1>
+            <p id="greeting">Chào mừng trở lại!</p>
+          </div>
         </div>
         <div class="onlineBadge">
           <div class="onlineDot"></div>
@@ -253,7 +282,7 @@ button,input,select{font-family:inherit;}
         <div id="deviceGrid">
           <div class="empty">
             <div class="emptyIcon">🏠</div>
-            <p>Chưa có thiết bị nào.<br>Thêm thiết bị ở thanh bên trái để bắt đầu.</p>
+            <p>Chưa có thiết bị nào.<br>Bấm menu ☰ để thêm thiết bị.</p>
           </div>
         </div>
       </section>
@@ -344,9 +373,12 @@ function doRegister(){
 function doLogout(){auth.signOut();}
 function showReg(){document.getElementById('loginBox').style.display='none';document.getElementById('regBox').style.display='block';}
 function showLogin(){document.getElementById('loginBox').style.display='block';document.getElementById('regBox').style.display='none';}
+function openMenu(){document.body.classList.add('menuOpen');}
+function closeMenu(){document.body.classList.remove('menuOpen');}
 
 function switchSection(name){
   activeSection=name;
+  closeMenu();
   document.querySelectorAll('.navItem').forEach(i=>i.classList.toggle('active',i.dataset.section===name));
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('section-'+name).classList.add('active');
@@ -373,6 +405,7 @@ function claimDevice(){
     document.getElementById('addSecret').value='';
     msg.className='addMsg ok'; msg.textContent='Kích hoạt thành công!';
     loadDevices();
+    setTimeout(closeMenu,800);
   });
 }
 
@@ -381,7 +414,7 @@ function loadDevices(){
   db.ref('users/'+uid+'/devices').once('value').then(snap=>{
     const grid=document.getElementById('deviceGrid');
     if(!snap.exists()||!snap.val()){
-      grid.innerHTML='<div class="empty"><div class="emptyIcon">🏠</div><p>Chưa có thiết bị nào.<br>Thêm thiết bị ở thanh bên trái để bắt đầu.</p></div>';
+      grid.innerHTML='<div class="empty"><div class="emptyIcon">🏠</div><p>Chưa có thiết bị nào.<br>Bấm menu ☰ để thêm thiết bị.</p></div>';
       updateStats(); renderSettings(); refreshHistorySelect(); return;
     }
     grid.innerHTML='';
@@ -400,7 +433,7 @@ function listenDevice(id){
         maybeStoreHistory(id,devData[id]);
         renderCard(id,devData[id]);
         updateStats();
-        renderSettings();
+        if(activeSection==='settings') renderSettings();
         refreshHistorySelect();
         checkAlerts();
       });
@@ -538,9 +571,16 @@ function checkAlerts(){
   Object.keys(devData).forEach(id=>{
     const d=devData[id], s=d.settings||defaultSettings(d.name||id);
     const name=s.deviceType||id;
-    if(isOutOfRange(d.temp,s.tempMin,s.tempMax)) messages.push(`<strong>${escapeHtml(name)}</strong>: nhiệt độ ${num(d.temp)}°C vượt ngưỡng ${s.tempMin}-${s.tempMax}°C`);
-    if(isOutOfRange(d.humi,s.humiMin,s.humiMax)) messages.push(`<strong>${escapeHtml(name)}</strong>: độ ẩm ${num(d.humi)}% vượt ngưỡng ${s.humiMin}-${s.humiMax}%`);
-    if(messages.length && s.alarmEnabled) ringAlarm(id);
+    let deviceAlert=false;
+    if(isOutOfRange(d.temp,s.tempMin,s.tempMax)){
+      messages.push(`<strong>${escapeHtml(name)}</strong>: nhiệt độ ${num(d.temp)}°C vượt ngưỡng ${s.tempMin}-${s.tempMax}°C`);
+      deviceAlert=true;
+    }
+    if(isOutOfRange(d.humi,s.humiMin,s.humiMax)){
+      messages.push(`<strong>${escapeHtml(name)}</strong>: độ ẩm ${num(d.humi)}% vượt ngưỡng ${s.humiMin}-${s.humiMax}%`);
+      deviceAlert=true;
+    }
+    if(deviceAlert && s.alarmEnabled) ringAlarm(id);
   });
   const box=document.getElementById('alertBox');
   document.getElementById('alertText').innerHTML=messages.join('<br>');
