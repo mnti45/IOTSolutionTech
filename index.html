@@ -3,453 +3,484 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>IoT Dashboard</title>
+<title>Smart Home IoT</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-  *{box-sizing:border-box;margin:0;padding:0;}
-  :root{
-    --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#22223a;
-    --accent:#6c63ff;--accent2:#00d4aa;--danger:#ff4757;
-    --text:#e8e8f0;--text2:#8888aa;--border:#2a2a40;
-  }
-  body{background:var(--bg);color:var(--text);font-family:'Inter',Arial,sans-serif;min-height:100vh;}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--bg4:#2a2f45;
+  --accent:#4f8ef7;--accent2:#7c3aed;--green:#22c55e;--red:#ef4444;
+  --yellow:#f59e0b;--text:#f1f5f9;--text2:#94a3b8;--border:#2d3348;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
 
-  /* ===== AUTH ===== */
-  #authPage{
-    display:flex;justify-content:center;align-items:center;
-    min-height:100vh;padding:20px;
-    background:radial-gradient(ellipse at 50% 0%,#1a1040 0%,var(--bg) 70%);
-  }
-  .authWrap{width:100%;max-width:420px;}
-  .authLogo{text-align:center;margin-bottom:32px;}
-  .authLogo .icon{font-size:48px;margin-bottom:8px;}
-  .authLogo h1{font-size:24px;font-weight:700;color:var(--text);letter-spacing:-0.5px;}
-  .authLogo p{font-size:14px;color:var(--text2);margin-top:4px;}
-  .authBox{
-    background:var(--bg2);border:1px solid var(--border);
-    border-radius:20px;padding:32px;
-    box-shadow:0 24px 64px rgba(0,0,0,0.4);
-  }
-  .authBox h2{font-size:20px;font-weight:600;margin-bottom:24px;color:var(--text);}
-  .formGroup{margin-bottom:16px;}
-  .formGroup label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500;}
-  .formGroup input{
-    width:100%;padding:12px 14px;border-radius:10px;
-    border:1px solid var(--border);background:var(--bg3);
-    color:var(--text);font-size:15px;font-family:inherit;
-    transition:border-color 0.2s;outline:none;
-  }
-  .formGroup input:focus{border-color:var(--accent);}
-  .btnPrimary{
-    width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#8b5cf6);
-    color:#fff;border:none;border-radius:10px;font-weight:600;
-    font-size:15px;cursor:pointer;font-family:inherit;
-    transition:opacity 0.2s,transform 0.1s;margin-top:8px;
-  }
-  .btnPrimary:hover{opacity:0.9;}
-  .btnPrimary:active{transform:scale(0.98);}
-  .authSwitch{text-align:center;margin-top:20px;font-size:14px;color:var(--text2);}
-  .authSwitch a{color:var(--accent);cursor:pointer;font-weight:500;text-decoration:none;}
-  .authSwitch a:hover{text-decoration:underline;}
-  .errMsg{
-    background:#ff475720;border:1px solid #ff475740;
-    color:#ff6b7a;border-radius:8px;padding:10px 14px;
-    font-size:13px;margin-top:12px;display:none;
-  }
-  .divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
-  .divider hr{flex:1;border:none;border-top:1px solid var(--border);}
-  .divider span{font-size:12px;color:var(--text2);}
+/* AUTH */
+#authPage{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%,#1e1b4b,transparent),var(--bg);padding:20px;}
+.authCard{width:100%;max-width:400px;}
+.brand{text-align:center;margin-bottom:32px;}
+.brandIcon{width:56px;height:56px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:16px;display:flex;align-items:center;justify-content:center;
+  font-size:26px;margin:0 auto 12px;}
+.brand h1{font-size:22px;font-weight:700;letter-spacing:-0.3px;}
+.brand p{font-size:13px;color:var(--text2);margin-top:4px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;}
+.card h2{font-size:18px;font-weight:600;margin-bottom:22px;}
+.field{margin-bottom:14px;}
+.field label{font-size:12px;color:var(--text2);font-weight:500;display:block;margin-bottom:5px;}
+.field input{width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:.2s;}
+.field input:focus{border-color:var(--accent);background:var(--bg4);}
+.btnMain{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border:none;border-radius:10px;font-weight:600;font-size:15px;
+  cursor:pointer;font-family:inherit;margin-top:6px;transition:.2s;}
+.btnMain:hover{opacity:.9;} .btnMain:active{transform:scale(.98);}
+.switchLink{text-align:center;margin-top:16px;font-size:13px;color:var(--text2);}
+.switchLink a{color:var(--accent);cursor:pointer;font-weight:500;}
+.errBox{background:#ef444415;border:1px solid #ef444430;color:#fca5a5;
+  border-radius:8px;padding:9px 12px;font-size:13px;margin-top:10px;display:none;}
 
-  /* ===== DASHBOARD ===== */
-  #dashPage{display:none;min-height:100vh;}
-  .navbar{
-    background:var(--bg2);border-bottom:1px solid var(--border);
-    padding:0 24px;height:60px;display:flex;align-items:center;
-    justify-content:space-between;position:sticky;top:0;z-index:100;
-  }
-  .navLogo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;}
-  .navLogo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);
-                box-shadow:0 0 8px var(--accent2);}
-  .navRight{display:flex;align-items:center;gap:12px;}
-  .navUser{font-size:13px;color:var(--text2);}
-  .btnLogout{
-    padding:7px 16px;background:var(--bg3);border:1px solid var(--border);
-    color:var(--text2);border-radius:8px;cursor:pointer;font-size:13px;
-    font-family:inherit;transition:all 0.2s;
-  }
-  .btnLogout:hover{border-color:var(--danger);color:var(--danger);}
+/* DASHBOARD */
+#dashPage{display:none;}
 
-  .dashContent{padding:24px;max-width:1100px;margin:0 auto;}
+/* Sidebar */
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);
+  padding:20px 0;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:50;}
+.sidebarLogo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.sidebarLogo .logoIcon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px;}
+.sidebarLogo h2{font-size:15px;font-weight:700;}
+.sidebarLogo p{font-size:11px;color:var(--text2);}
+.sideNav{flex:1;padding:0 10px;}
+.navItem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+  font-size:14px;color:var(--text2);cursor:pointer;transition:.15s;margin-bottom:2px;}
+.navItem:hover{background:var(--bg3);color:var(--text);}
+.navItem.active{background:linear-gradient(135deg,#4f8ef720,#7c3aed20);
+  color:var(--accent);border:1px solid #4f8ef720;}
+.navItem .icon{font-size:18px;width:24px;text-align:center;}
+.sidebarBottom{padding:10px;}
+.userInfo{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:var(--bg3);border-radius:10px;margin-bottom:8px;}
+.avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.userEmail{font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btnLogout{width:100%;padding:8px;background:transparent;border:1px solid var(--border);
+  color:var(--text2);border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;transition:.2s;}
+.btnLogout:hover{border-color:var(--red);color:var(--red);}
 
-  /* Add device */
-  .addSection{
-    background:var(--bg2);border:1px solid var(--border);
-    border-radius:16px;padding:20px;margin-bottom:24px;
-  }
-  .addSection h3{font-size:15px;font-weight:600;margin-bottom:14px;color:var(--text);}
-  .addRow{display:flex;gap:10px;flex-wrap:wrap;}
-  .addRow input{
-    flex:1;min-width:150px;padding:10px 14px;border-radius:10px;
-    border:1px solid var(--border);background:var(--bg3);
-    color:var(--text);font-size:14px;font-family:inherit;outline:none;
-    transition:border-color 0.2s;
-  }
-  .addRow input:focus{border-color:var(--accent);}
-  .btnAdd{
-    padding:10px 20px;background:linear-gradient(135deg,var(--accent2),#00b894);
-    color:#fff;border:none;border-radius:10px;font-weight:600;
-    font-size:14px;cursor:pointer;font-family:inherit;white-space:nowrap;
-    transition:opacity 0.2s;
-  }
-  .btnAdd:hover{opacity:0.85;}
-  .addFeedback{width:100%;font-size:13px;margin-top:8px;min-height:18px;}
-  .addFeedback.ok{color:var(--accent2);}
-  .addFeedback.err{color:var(--danger);}
+/* Main content */
+.main{margin-left:220px;flex:1;padding:24px;}
+.topBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.topBar h1{font-size:20px;font-weight:700;}
+.topBar p{font-size:13px;color:var(--text2);margin-top:2px;}
+.onlineBadge{display:flex;align-items:center;gap:6px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px;}
+.onlineDot{width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
 
-  /* Device grid */
-  .sectionTitle{font-size:16px;font-weight:600;margin-bottom:16px;color:var(--text);}
-  #deviceGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+/* Stats row */
+.statsRow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
+.statCard{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.statCard .sIcon{font-size:22px;margin-bottom:8px;}
+.statCard .sVal{font-size:26px;font-weight:700;}
+.statCard .sLabel{font-size:12px;color:var(--text2);margin-top:2px;}
 
-  .devCard{
-    background:var(--bg2);border:1px solid var(--border);
-    border-radius:16px;padding:20px;transition:border-color 0.2s;
-    position:relative;overflow:hidden;
-  }
-  .devCard::before{
-    content:'';position:absolute;top:0;left:0;right:0;height:3px;
-    background:linear-gradient(90deg,var(--accent),var(--accent2));
-  }
-  .devCard:hover{border-color:#3a3a55;}
-  .devCardHead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
-  .devCardTitle{font-size:15px;font-weight:600;color:var(--text);}
-  .devCardId{font-size:11px;color:var(--text2);margin-top:3px;}
-  .statusBadge{
-    font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;
-    background:#00d4aa20;color:var(--accent2);border:1px solid #00d4aa30;
-  }
+/* Add device */
+.addPanel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;
+  padding:18px;margin-bottom:24px;}
+.addPanel h3{font-size:14px;font-weight:600;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;}
+.addRow{display:flex;gap:10px;flex-wrap:wrap;}
+.addRow input{flex:1;min-width:140px;padding:10px 13px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:10px;color:var(--text);
+  font-size:13px;font-family:inherit;outline:none;transition:.2s;}
+.addRow input:focus{border-color:var(--accent);}
+.btnAdd{padding:10px 20px;background:linear-gradient(135deg,var(--green),#16a34a);
+  color:#fff;border:none;border-radius:10px;font-weight:600;font-size:13px;
+  cursor:pointer;font-family:inherit;white-space:nowrap;}
+.addMsg{width:100%;font-size:12px;margin-top:8px;}
+.addMsg.ok{color:var(--green);} .addMsg.err{color:var(--red);}
 
-  .sensorGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-  .sensorItem{background:var(--bg3);border-radius:10px;padding:12px;}
-  .sensorItem .sLabel{font-size:11px;color:var(--text2);margin-bottom:4px;}
-  .sensorItem .sVal{font-size:22px;font-weight:700;color:var(--text);}
-  .sensorItem .sUnit{font-size:12px;color:var(--text2);margin-left:2px;}
+/* Device grid */
+.sectionHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.sectionHead h2{font-size:15px;font-weight:600;}
+.devCount{font-size:12px;color:var(--text2);background:var(--bg3);
+  padding:3px 10px;border-radius:20px;}
+#deviceGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
 
-  .relayControl{
-    background:var(--bg3);border-radius:10px;padding:12px 14px;
-    display:flex;align-items:center;justify-content:space-between;
-  }
-  .relayLeft{display:flex;align-items:center;gap:10px;}
-  .relayDot{width:12px;height:12px;border-radius:50%;background:#333;transition:all 0.3s;flex-shrink:0;}
-  .relayDot.on{background:#00ff88;box-shadow:0 0 10px #00ff88;}
-  .relayDot.off{background:var(--danger);box-shadow:0 0 8px var(--danger);}
-  .relayInfo .rLabel{font-size:12px;color:var(--text2);}
-  .relayInfo .rStatus{font-size:14px;font-weight:600;}
-  .rStatus.on{color:#00ff88;} .rStatus.off{color:var(--danger);}
-  .btnToggle{
-    padding:7px 18px;border:none;border-radius:8px;font-weight:600;
-    font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.2s;
-  }
-  .btnToggle.toOn{background:#00d4aa20;color:var(--accent2);border:1px solid #00d4aa40;}
-  .btnToggle.toOn:hover{background:#00d4aa30;}
-  .btnToggle.toOff{background:#ff475720;color:var(--danger);border:1px solid #ff475740;}
-  .btnToggle.toOff:hover{background:#ff475730;}
+/* Device card */
+.devCard{background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;transition:.2s;}
+.devCard:hover{border-color:var(--bg4);transform:translateY(-1px);}
+.devCardTop{padding:16px 16px 12px;border-bottom:1px solid var(--border);}
+.devCardHead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.devIcon{width:40px;height:40px;background:linear-gradient(135deg,#4f8ef720,#7c3aed20);
+  border:1px solid #4f8ef730;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:20px;}
+.devOnline{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--green);}
+.devOnlineDot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.devTitle{font-size:15px;font-weight:600;margin-bottom:2px;}
+.devId{font-size:11px;color:var(--text2);}
 
-  .devCardFoot{margin-top:12px;font-size:11px;color:#444;text-align:right;}
+/* Sensor row */
+.sensorRow{display:flex;gap:10px;margin-top:12px;}
+.sensorChip{flex:1;background:var(--bg3);border-radius:10px;padding:10px 12px;}
+.sensorChip .scLabel{font-size:10px;color:var(--text2);margin-bottom:3px;}
+.sensorChip .scVal{font-size:20px;font-weight:700;}
+.sensorChip .scUnit{font-size:11px;color:var(--text2);}
 
-  .emptyState{
-    grid-column:1/-1;text-align:center;padding:60px 20px;
-    color:var(--text2);
-  }
-  .emptyState .emptyIcon{font-size:48px;margin-bottom:12px;}
-  .emptyState p{font-size:15px;}
+/* Relay section */
+.devCardBot{padding:12px 16px;}
+.relayGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.relayItem{background:var(--bg3);border-radius:10px;padding:10px 12px;
+  display:flex;align-items:center;justify-content:space-between;}
+.relayLeft{display:flex;align-items:center;gap:8px;}
+.relayDot{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:.3s;}
+.relayDot.on{background:var(--green);box-shadow:0 0 8px var(--green);}
+.relayDot.off{background:var(--red);box-shadow:0 0 6px var(--red);}
+.relayName{font-size:12px;font-weight:500;}
+/* Toggle switch */
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggleSlider{position:absolute;inset:0;background:#374151;border-radius:20px;
+  cursor:pointer;transition:.3s;}
+.toggleSlider:before{content:'';position:absolute;width:14px;height:14px;
+  background:#fff;border-radius:50%;left:3px;top:3px;transition:.3s;}
+.toggle input:checked + .toggleSlider{background:var(--green);}
+.toggle input:checked + .toggleSlider:before{transform:translateX(16px);}
+
+.devCardFoot{padding:8px 16px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;}
+.devCardFoot span{font-size:11px;color:var(--text2);}
+
+/* Empty */
+.empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text2);}
+.empty .emptyIcon{font-size:52px;margin-bottom:12px;}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .main{margin-left:0;}
+  .statsRow{grid-template-columns:1fr 1fr;}
+}
 </style>
 </head>
 <body>
 
 <!-- AUTH -->
 <div id="authPage">
-  <div class="authWrap">
-    <div class="authLogo">
-      <div class="icon">⚡</div>
-      <h1>IoT Dashboard</h1>
-      <p>Quản lý thiết bị thông minh</p>
+  <div class="authCard">
+    <div class="brand">
+      <div class="brandIcon">🏠</div>
+      <h1>Smart Home IoT</h1>
+      <p>Hệ thống quản lý nhà thông minh</p>
     </div>
-
-    <!-- Login -->
-    <div class="authBox" id="loginBox">
+    <div class="card" id="loginBox">
       <h2>Đăng nhập</h2>
-      <div class="formGroup">
-        <label>Email</label>
-        <input type="email" id="loginEmail" placeholder="you@example.com">
-      </div>
-      <div class="formGroup">
-        <label>Mật khẩu</label>
-        <input type="password" id="loginPass" placeholder="••••••••">
-      </div>
-      <button class="btnPrimary" onclick="doLogin()">Đăng nhập</button>
-      <div class="errMsg" id="loginErr"></div>
-      <div class="authSwitch">Chưa có tài khoản? <a onclick="showRegister()">Đăng ký ngay</a></div>
+      <div class="field"><label>Email</label>
+        <input type="email" id="loginEmail" placeholder="email@example.com"></div>
+      <div class="field"><label>Mật khẩu</label>
+        <input type="password" id="loginPass" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btnMain" onclick="doLogin()">Đăng nhập</button>
+      <div class="errBox" id="loginErr"></div>
+      <div class="switchLink">Chưa có tài khoản? <a onclick="showReg()">Đăng ký</a></div>
     </div>
-
-    <!-- Register -->
-    <div class="authBox" id="registerBox" style="display:none">
+    <div class="card" id="regBox" style="display:none">
       <h2>Tạo tài khoản</h2>
-      <div class="formGroup">
-        <label>Họ tên</label>
-        <input type="text" id="regName" placeholder="Nguyễn Văn A">
-      </div>
-      <div class="formGroup">
-        <label>Email</label>
-        <input type="email" id="regEmail" placeholder="you@example.com">
-      </div>
-      <div class="formGroup">
-        <label>Mật khẩu</label>
-        <input type="password" id="regPass" placeholder="Tối thiểu 6 ký tự">
-      </div>
-      <button class="btnPrimary" onclick="doRegister()">Tạo tài khoản</button>
-      <div class="errMsg" id="regErr"></div>
-      <div class="authSwitch">Đã có tài khoản? <a onclick="showLogin()">Đăng nhập</a></div>
+      <div class="field"><label>Họ tên</label>
+        <input type="text" id="regName" placeholder="Nguyễn Văn A"></div>
+      <div class="field"><label>Email</label>
+        <input type="email" id="regEmail" placeholder="email@example.com"></div>
+      <div class="field"><label>Mật khẩu</label>
+        <input type="password" id="regPass" placeholder="Tối thiểu 6 ký tự"></div>
+      <button class="btnMain" onclick="doRegister()">Tạo tài khoản</button>
+      <div class="errBox" id="regErr"></div>
+      <div class="switchLink">Đã có tài khoản? <a onclick="showLogin()">Đăng nhập</a></div>
     </div>
   </div>
 </div>
 
 <!-- DASHBOARD -->
 <div id="dashPage">
-  <nav class="navbar">
-    <div class="navLogo">
-      <div class="dot"></div>
-      IoT Dashboard
-    </div>
-    <div class="navRight">
-      <span class="navUser" id="navEmail"></span>
-      <button class="btnLogout" onclick="doLogout()">Đăng xuất</button>
-    </div>
-  </nav>
-
-  <div class="dashContent">
-    <div class="addSection">
-      <h3>➕ Thêm thiết bị mới</h3>
-      <div class="addRow">
-        <input id="addId"     placeholder="ID thiết bị (VD: ESP001)">
-        <input id="addSecret" placeholder="Mã kích hoạt (VD: A3F7)">
-        <button class="btnAdd" onclick="claimDevice()">Thêm thiết bị</button>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebarLogo">
+        <div class="logoIcon">🏠</div>
+        <h2>Smart Home</h2>
+        <p>IoT Dashboard</p>
       </div>
-      <div class="addFeedback" id="addMsg"></div>
-    </div>
-
-    <div class="sectionTitle">Thiết bị của bạn</div>
-    <div id="deviceGrid">
-      <div class="emptyState">
-        <div class="emptyIcon">📡</div>
-        <p>Chưa có thiết bị nào. Thêm thiết bị ở trên.</p>
+      <nav class="sideNav">
+        <div class="navItem active"><span class="icon">📊</span> Tổng quan</div>
+        <div class="navItem"><span class="icon">💡</span> Thiết bị</div>
+        <div class="navItem"><span class="icon">📈</span> Lịch sử</div>
+        <div class="navItem"><span class="icon">⚙️</span> Cài đặt</div>
+      </nav>
+      <div class="sidebarBottom">
+        <div class="userInfo">
+          <div class="avatar">👤</div>
+          <div class="userEmail" id="sideEmail">user@email.com</div>
+        </div>
+        <button class="btnLogout" onclick="doLogout()">🚪 Đăng xuất</button>
       </div>
-    </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <div class="topBar">
+        <div>
+          <h1>Tổng quan</h1>
+          <p id="greeting">Chào mừng trở lại!</p>
+        </div>
+        <div class="onlineBadge">
+          <div class="onlineDot"></div>
+          <span id="onlineCount">0 thiết bị online</span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="statsRow">
+        <div class="statCard">
+          <div class="sIcon">📡</div>
+          <div class="sVal" id="statTotal">0</div>
+          <div class="sLabel">Tổng thiết bị</div>
+        </div>
+        <div class="statCard">
+          <div class="sIcon">✅</div>
+          <div class="sVal" id="statOnline">0</div>
+          <div class="sLabel">Đang online</div>
+        </div>
+        <div class="statCard">
+          <div class="sIcon">⚡</div>
+          <div class="sVal" id="statRelay">0</div>
+          <div class="sLabel">Relay đang bật</div>
+        </div>
+        <div class="statCard">
+          <div class="sIcon">🌡️</div>
+          <div class="sVal" id="statTemp">--</div>
+          <div class="sLabel">Nhiệt độ TB (°C)</div>
+        </div>
+      </div>
+
+      <!-- Add device -->
+      <div class="addPanel">
+        <h3>➕ Thêm thiết bị mới</h3>
+        <div class="addRow">
+          <input id="addId"     placeholder="ID thiết bị (VD: ESP001)">
+          <input id="addSecret" placeholder="Mã kích hoạt (VD: A3F7)">
+          <button class="btnAdd" onclick="claimDevice()">Kích hoạt</button>
+        </div>
+        <div class="addMsg" id="addMsg"></div>
+      </div>
+
+      <!-- Devices -->
+      <div class="sectionHead">
+        <h2>Thiết bị của bạn</h2>
+        <span class="devCount" id="devCountBadge">0 thiết bị</span>
+      </div>
+      <div id="deviceGrid">
+        <div class="empty">
+          <div class="emptyIcon">🏠</div>
+          <p>Chưa có thiết bị nào.<br>Thêm thiết bị ở trên để bắt đầu.</p>
+        </div>
+      </div>
+    </main>
   </div>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <script>
 firebase.initializeApp({
-  apiKey:            "AIzaSyAGbBQEiilbwkj6Shq4E-HEuWb1l3yaBUI",
-  authDomain:        "esp32-ff6f2.firebaseapp.com",
-  databaseURL:       "https://esp32-ff6f2-default-rtdb.firebaseio.com",
-  projectId:         "esp32-ff6f2",
-  storageBucket:     "esp32-ff6f2.firebasestorage.app",
-  messagingSenderId: "569379349",
-  appId:             "1:569379349:web:e7524620b0496bae941c1c"
+  apiKey:"AIzaSyAGbBQEiilbwkj6Shq4E-HEuWb1l3yaBUI",
+  authDomain:"esp32-ff6f2.firebaseapp.com",
+  databaseURL:"https://esp32-ff6f2-default-rtdb.firebaseio.com",
+  projectId:"esp32-ff6f2",
+  storageBucket:"esp32-ff6f2.firebasestorage.app",
+  messagingSenderId:"569379349",
+  appId:"1:569379349:web:e7524620b0496bae941c1c"
 });
+const auth=firebase.auth(), db=firebase.database();
+let uid=null, listeners={}, devData={};
 
-const auth = firebase.auth();
-const db   = firebase.database();
-let uid = null, listeners = {};
-
-// ===== AUTH STATE =====
-auth.onAuthStateChanged(user => {
-  if (user) {
-    uid = user.uid;
-    document.getElementById('navEmail').textContent = user.email;
-    document.getElementById('authPage').style.display = 'none';
-    document.getElementById('dashPage').style.display = 'block';
+// AUTH
+auth.onAuthStateChanged(u=>{
+  if(u){
+    uid=u.uid;
+    document.getElementById('sideEmail').textContent=u.email;
+    document.getElementById('greeting').textContent='Chào, '+u.email.split('@')[0]+'!';
+    document.getElementById('authPage').style.display='none';
+    document.getElementById('dashPage').style.display='block';
     loadDevices();
   } else {
-    uid = null;
-    clearListeners();
-    document.getElementById('authPage').style.display = 'flex';
-    document.getElementById('dashPage').style.display = 'none';
+    uid=null; clearListeners();
+    document.getElementById('authPage').style.display='flex';
+    document.getElementById('dashPage').style.display='none';
   }
 });
 
-// ===== LOGIN =====
-function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPass').value;
-  const errEl = document.getElementById('loginErr');
-  errEl.style.display = 'none';
-  auth.signInWithEmailAndPassword(email, pass)
-    .catch(e => { errEl.textContent = friendlyErr(e.code); errEl.style.display = 'block'; });
+function doLogin(){
+  const e=document.getElementById('loginEmail').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const el=document.getElementById('loginErr');
+  el.style.display='none';
+  auth.signInWithEmailAndPassword(e,p).catch(err=>{el.textContent=fErr(err.code);el.style.display='block';});
 }
-
-// ===== REGISTER =====
-function doRegister() {
-  const name  = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const pass  = document.getElementById('regPass').value;
-  const errEl = document.getElementById('regErr');
-  errEl.style.display = 'none';
-  if (!name) { errEl.textContent = 'Vui lòng nhập họ tên'; errEl.style.display='block'; return; }
-  auth.createUserWithEmailAndPassword(email, pass)
-    .then(c => db.ref('users/' + c.user.uid).set({ name, email, devices: {} }))
-    .catch(e => { errEl.textContent = friendlyErr(e.code); errEl.style.display = 'block'; });
+function doRegister(){
+  const n=document.getElementById('regName').value.trim();
+  const e=document.getElementById('regEmail').value.trim();
+  const p=document.getElementById('regPass').value;
+  const el=document.getElementById('regErr');
+  el.style.display='none';
+  if(!n){el.textContent='Nhập họ tên';el.style.display='block';return;}
+  auth.createUserWithEmailAndPassword(e,p)
+    .then(c=>db.ref('users/'+c.user.uid).set({name:n,email:e,devices:{}}))
+    .catch(err=>{el.textContent=fErr(err.code);el.style.display='block';});
 }
+function doLogout(){auth.signOut();}
+function showReg(){document.getElementById('loginBox').style.display='none';document.getElementById('regBox').style.display='block';}
+function showLogin(){document.getElementById('loginBox').style.display='block';document.getElementById('regBox').style.display='none';}
 
-function doLogout() { auth.signOut(); }
-function showRegister() {
-  document.getElementById('loginBox').style.display    = 'none';
-  document.getElementById('registerBox').style.display = 'block';
-}
-function showLogin() {
-  document.getElementById('loginBox').style.display    = 'block';
-  document.getElementById('registerBox').style.display = 'none';
-}
-
-// ===== CLAIM DEVICE =====
-function claimDevice() {
-  const devId  = document.getElementById('addId').value.trim().toUpperCase();
-  const secret = document.getElementById('addSecret').value.trim().toUpperCase();
-  const msgEl  = document.getElementById('addMsg');
-  msgEl.className = 'addFeedback'; msgEl.textContent = '⏳ Đang kiểm tra...';
-
-  if (!devId || !secret) {
-    msgEl.className = 'addFeedback err'; msgEl.textContent = '❌ Nhập đủ ID và mã kích hoạt'; return;
-  }
-  db.ref('devices/' + devId).once('value').then(snap => {
-    if (!snap.exists()) {
-      msgEl.className = 'addFeedback err'; msgEl.textContent = '❌ Không tìm thấy thiết bị'; return;
-    }
-    const d = snap.val();
-    if (d.secret !== secret) {
-      msgEl.className = 'addFeedback err'; msgEl.textContent = '❌ Mã kích hoạt không đúng'; return;
-    }
-    if (d.claimed) {
-      msgEl.className = 'addFeedback err'; msgEl.textContent = '❌ Thiết bị đã được đăng ký'; return;
-    }
-    db.ref('devices/' + devId).update({ claimed: true, owner: uid });
-    db.ref('users/' + uid + '/devices/' + devId).set(true);
-    document.getElementById('addId').value = '';
-    document.getElementById('addSecret').value = '';
-    msgEl.className = 'addFeedback ok'; msgEl.textContent = '✅ Thêm thiết bị thành công!';
+// CLAIM
+function claimDevice(){
+  const id=document.getElementById('addId').value.trim().toUpperCase();
+  const sc=document.getElementById('addSecret').value.trim().toUpperCase();
+  const msg=document.getElementById('addMsg');
+  msg.className='addMsg'; msg.textContent='⏳ Đang kiểm tra...';
+  if(!id||!sc){msg.className='addMsg err';msg.textContent='❌ Nhập đủ ID và mã kích hoạt';return;}
+  db.ref('devices/'+id).once('value').then(snap=>{
+    if(!snap.exists()){msg.className='addMsg err';msg.textContent='❌ Không tìm thấy thiết bị';return;}
+    const d=snap.val();
+    if(d.secret!==sc){msg.className='addMsg err';msg.textContent='❌ Mã kích hoạt không đúng';return;}
+    if(d.claimed){msg.className='addMsg err';msg.textContent='❌ Thiết bị đã được đăng ký';return;}
+    db.ref('devices/'+id).update({claimed:true,owner:uid});
+    db.ref('users/'+uid+'/devices/'+id).set(true);
+    document.getElementById('addId').value='';
+    document.getElementById('addSecret').value='';
+    msg.className='addMsg ok'; msg.textContent='✅ Kích hoạt thành công!';
     loadDevices();
   });
 }
 
-// ===== LOAD DEVICES =====
-function loadDevices() {
+// LOAD
+function loadDevices(){
   clearListeners();
-  db.ref('users/' + uid + '/devices').once('value').then(snap => {
-    const grid = document.getElementById('deviceGrid');
-    if (!snap.exists() || !snap.val()) {
-      grid.innerHTML = '<div class="emptyState"><div class="emptyIcon">📡</div><p>Chưa có thiết bị nào. Thêm thiết bị ở trên.</p></div>';
-      return;
+  db.ref('users/'+uid+'/devices').once('value').then(snap=>{
+    const grid=document.getElementById('deviceGrid');
+    if(!snap.exists()||!snap.val()){
+      grid.innerHTML='<div class="empty"><div class="emptyIcon">🏠</div><p>Chưa có thiết bị nào.<br>Thêm thiết bị ở trên để bắt đầu.</p></div>';
+      updateStats();return;
     }
-    grid.innerHTML = '';
-    Object.keys(snap.val()).forEach(id => listenDevice(id));
+    grid.innerHTML='';
+    Object.keys(snap.val()).forEach(id=>listenDevice(id));
+    document.getElementById('devCountBadge').textContent=Object.keys(snap.val()).length+' thiết bị';
   });
 }
 
-// ===== REALTIME LISTENER =====
-function listenDevice(devId) {
-  const ref = db.ref('devices/' + devId);
-  const cb  = ref.on('value', snap => {
-    if (snap.exists()) renderCard(devId, snap.val());
+function listenDevice(id){
+  const r=db.ref('devices/'+id);
+  const cb=r.on('value',snap=>{
+    if(snap.exists()){devData[id]=snap.val();renderCard(id,snap.val());updateStats();}
   });
-  listeners[devId] = { ref, cb };
+  listeners[id]={ref:r,cb};
+}
+function clearListeners(){
+  Object.values(listeners).forEach(l=>l.ref.off('value',l.cb));
+  listeners={}; devData={};
 }
 
-function clearListeners() {
-  Object.values(listeners).forEach(l => l.ref.off('value', l.cb));
-  listeners = {};
-}
+// RENDER CARD
+function renderCard(id,d){
+  const grid=document.getElementById('deviceGrid');
+  const empty=grid.querySelector('.empty');
+  if(empty) empty.remove();
 
-// ===== RENDER CARD =====
-function renderCard(devId, d) {
-  const grid = document.getElementById('deviceGrid');
-  const empty = grid.querySelector('.emptyState');
-  if (empty) empty.remove();
+  let card=document.getElementById('card-'+id);
+  if(!card){card=document.createElement('div');card.className='devCard';card.id='card-'+id;grid.appendChild(card);}
 
-  let card = document.getElementById('card-' + devId);
-  if (!card) {
-    card = document.createElement('div');
-    card.className = 'devCard';
-    card.id = 'card-' + devId;
-    grid.appendChild(card);
+  const features=(d.features||'').split(',');
+  const relayOn=d.relay===1;
+  const ts=d.last_update?new Date(d.last_update*1000).toLocaleTimeString('vi-VN'):'--';
+  const isOnline=d.status==='online';
+
+  let sensorHtml='';
+  if(features.includes('temp')||features.includes('humi')){
+    sensorHtml='<div class="sensorRow">';
+    if(features.includes('temp'))
+      sensorHtml+=`<div class="sensorChip"><div class="scLabel">🌡 Nhiệt độ</div>
+        <span class="scVal">${(d.temp||0).toFixed(1)}</span><span class="scUnit"> °C</span></div>`;
+    if(features.includes('humi'))
+      sensorHtml+=`<div class="sensorChip"><div class="scLabel">💧 Độ ẩm</div>
+        <span class="scVal">${(d.humi||0).toFixed(1)}</span><span class="scUnit"> %</span></div>`;
+    sensorHtml+='</div>';
   }
 
-  const features = (d.features || '').split(',');
-  const relayOn  = d.relay === 1;
-  const ts = d.last_update
-    ? new Date(d.last_update * 1000).toLocaleTimeString('vi-VN')
-    : '--';
-
-  let sensors = '';
-  if (features.includes('temp'))
-    sensors += `<div class="sensorItem">
-      <div class="sLabel">🌡 Nhiệt độ</div>
-      <div><span class="sVal">${(d.temp||0).toFixed(1)}</span><span class="sUnit">°C</span></div>
-    </div>`;
-  if (features.includes('humi'))
-    sensors += `<div class="sensorItem">
-      <div class="sLabel">💧 Độ ẩm</div>
-      <div><span class="sVal">${(d.humi||0).toFixed(1)}</span><span class="sUnit">%</span></div>
-    </div>`;
-
-  let relayHtml = '';
-  if (features.includes('relay'))
-    relayHtml = `<div class="relayControl">
-      <div class="relayLeft">
-        <div class="relayDot ${relayOn?'on':'off'}"></div>
-        <div class="relayInfo">
-          <div class="rLabel">⚡ Relay</div>
-          <div class="rStatus ${relayOn?'on':'off'}">${relayOn?'Đang bật':'Đang tắt'}</div>
+  let relayHtml='';
+  if(features.includes('relay')){
+    relayHtml=`<div class="devCardBot">
+      <div class="relayGrid">
+        <div class="relayItem">
+          <div class="relayLeft">
+            <div class="relayDot ${relayOn?'on':'off'}"></div>
+            <span class="relayName">Relay</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" ${relayOn?'checked':''} onchange="toggleRelay('${id}',this.checked?1:0)">
+            <span class="toggleSlider"></span>
+          </label>
         </div>
       </div>
-      <button class="btnToggle ${relayOn?'toOff':'toOn'}"
-              onclick="toggleRelay('${devId}',${relayOn?0:1})">
-        ${relayOn?'Tắt':'Bật'}
-      </button>
     </div>`;
+  }
 
-  card.innerHTML = `
-    <div class="devCardHead">
-      <div>
-        <div class="devCardTitle">${d.name || devId}</div>
-        <div class="devCardId">${devId}</div>
+  card.innerHTML=`
+    <div class="devCardTop">
+      <div class="devCardHead">
+        <div class="devIcon">⚡</div>
+        <div class="devOnline"><div class="devOnlineDot"></div>${isOnline?'Online':'Offline'}</div>
       </div>
-      <span class="statusBadge">● Online</span>
+      <div class="devTitle">${d.name||id}</div>
+      <div class="devId">${id}</div>
+      ${sensorHtml}
     </div>
-    ${sensors ? '<div class="sensorGrid">' + sensors + '</div>' : ''}
     ${relayHtml}
-    <div class="devCardFoot">Cập nhật lúc ${ts}</div>`;
+    <div class="devCardFoot">
+      <span>Cập nhật: ${ts}</span>
+      <span style="color:${isOnline?'var(--green)':'var(--red)'}">●</span>
+    </div>`;
 }
 
-// ===== TOGGLE RELAY =====
-function toggleRelay(devId, state) {
-  db.ref('devices/' + devId).update({ relay_cmd: state });
+// TOGGLE RELAY
+function toggleRelay(id,state){
+  db.ref('devices/'+id).update({relay_cmd:state});
 }
 
-// ===== ERROR MESSAGES =====
-function friendlyErr(code) {
-  return ({
-    'auth/invalid-email':       'Email không hợp lệ',
-    'auth/user-not-found':      'Tài khoản không tồn tại',
-    'auth/wrong-password':      'Sai mật khẩu',
-    'auth/invalid-credential':  'Email hoặc mật khẩu không đúng',
-    'auth/email-already-in-use':'Email đã được sử dụng',
-    'auth/weak-password':       'Mật khẩu tối thiểu 6 ký tự',
-  })[code] || 'Lỗi: ' + code;
+// STATS
+function updateStats(){
+  const ids=Object.keys(devData);
+  let online=0,relayOn=0,tempSum=0,tempCount=0;
+  ids.forEach(id=>{
+    const d=devData[id];
+    if(d.status==='online') online++;
+    if(d.relay===1) relayOn++;
+    if(d.temp&&d.temp>0){tempSum+=d.temp;tempCount++;}
+  });
+  document.getElementById('statTotal').textContent=ids.length;
+  document.getElementById('statOnline').textContent=online;
+  document.getElementById('statRelay').textContent=relayOn;
+  document.getElementById('statTemp').textContent=tempCount?( tempSum/tempCount).toFixed(1):'--';
+  document.getElementById('onlineCount').textContent=online+' thiết bị online';
+  document.getElementById('devCountBadge').textContent=ids.length+' thiết bị';
+}
+
+function fErr(c){
+  return({'auth/invalid-email':'Email không hợp lệ','auth/user-not-found':'Tài khoản không tồn tại',
+    'auth/wrong-password':'Sai mật khẩu','auth/invalid-credential':'Email hoặc mật khẩu không đúng',
+    'auth/email-already-in-use':'Email đã được sử dụng','auth/weak-password':'Mật khẩu tối thiểu 6 ký tự'})[c]||c;
 }
 </script>
 </body>
