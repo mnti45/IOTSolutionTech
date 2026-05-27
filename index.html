@@ -13,6 +13,7 @@
   --yellow:#f59e0b;--text:#f1f5f9;--text2:#94a3b8;--border:#2d3348;
 }
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+button,input,select{font-family:inherit;}
 
 /* AUTH */
 #authPage{min-height:100vh;display:flex;align-items:center;justify-content:center;
@@ -22,19 +23,19 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .brandIcon{width:56px;height:56px;background:linear-gradient(135deg,var(--accent),var(--accent2));
   border-radius:16px;display:flex;align-items:center;justify-content:center;
   font-size:26px;margin:0 auto 12px;}
-.brand h1{font-size:22px;font-weight:700;letter-spacing:-0.3px;}
+.brand h1{font-size:22px;font-weight:700;}
 .brand p{font-size:13px;color:var(--text2);margin-top:4px;}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;}
 .card h2{font-size:18px;font-weight:600;margin-bottom:22px;}
 .field{margin-bottom:14px;}
 .field label{font-size:12px;color:var(--text2);font-weight:500;display:block;margin-bottom:5px;}
 .field input{width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border);
-  border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:.2s;}
+  border-radius:10px;color:var(--text);font-size:14px;outline:none;transition:.2s;}
 .field input:focus{border-color:var(--accent);background:var(--bg4);}
 .btnMain{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));
-  color:#fff;border:none;border-radius:10px;font-weight:600;font-size:15px;
-  cursor:pointer;font-family:inherit;margin-top:6px;transition:.2s;}
-.btnMain:hover{opacity:.9;} .btnMain:active{transform:scale(.98);}
+  color:#fff;border:none;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;margin-top:6px;transition:.2s;}
+.btnMain:hover,.btnAdd:hover,.btnSmall:hover{opacity:.9;}
+.btnMain:active,.btnAdd:active,.btnSmall:active{transform:scale(.98);}
 .switchLink{text-align:center;margin-top:16px;font-size:13px;color:var(--text2);}
 .switchLink a{color:var(--accent);cursor:pointer;font-weight:500;}
 .errBox{background:#ef444415;border:1px solid #ef444430;color:#fca5a5;
@@ -42,134 +43,130 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 
 /* DASHBOARD */
 #dashPage{display:none;}
-
-/* Sidebar */
 .layout{display:flex;min-height:100vh;}
-.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);
+.sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);
   padding:20px 0;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:50;}
-.sidebarLogo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.sidebarLogo{padding:0 20px 18px;border-bottom:1px solid var(--border);margin-bottom:12px;}
 .sidebarLogo .logoIcon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));
   border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px;}
 .sidebarLogo h2{font-size:15px;font-weight:700;}
 .sidebarLogo p{font-size:11px;color:var(--text2);}
-.sideNav{flex:1;padding:0 10px;}
+.sideNav{padding:0 10px 12px;}
 .navItem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
-  font-size:14px;color:var(--text2);cursor:pointer;transition:.15s;margin-bottom:2px;}
+  font-size:14px;color:var(--text2);cursor:pointer;transition:.15s;margin-bottom:2px;border:1px solid transparent;}
 .navItem:hover{background:var(--bg3);color:var(--text);}
-.navItem.active{background:linear-gradient(135deg,#4f8ef720,#7c3aed20);
-  color:var(--accent);border:1px solid #4f8ef720;}
+.navItem.active{background:linear-gradient(135deg,#4f8ef720,#7c3aed20);color:var(--accent);border-color:#4f8ef720;}
 .navItem .icon{font-size:18px;width:24px;text-align:center;}
-.sidebarBottom{padding:10px;}
-.userInfo{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  background:var(--bg3);border-radius:10px;margin-bottom:8px;}
+.sidebarAdd{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 14px 16px;}
+.sidebarAdd h3{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.sidebarAdd input{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:12px;outline:none;margin-bottom:8px;}
+.sidebarAdd input:focus{border-color:var(--accent);}
+.btnAdd{width:100%;padding:10px;background:linear-gradient(135deg,var(--green),#16a34a);
+  color:#fff;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;}
+.addMsg{font-size:11px;margin-top:8px;line-height:1.35;min-height:15px;}
+.addMsg.ok{color:var(--green);} .addMsg.err{color:var(--red);}
+.sidebarBottom{padding:10px;margin-top:auto;}
+.userInfo{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:10px;margin-bottom:8px;}
 .avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));
   border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
 .userEmail{font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .btnLogout{width:100%;padding:8px;background:transparent;border:1px solid var(--border);
-  color:var(--text2);border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;transition:.2s;}
+  color:var(--text2);border-radius:8px;cursor:pointer;font-size:13px;transition:.2s;}
 .btnLogout:hover{border-color:var(--red);color:var(--red);}
 
-/* Main content */
-.main{margin-left:220px;flex:1;padding:24px;}
-.topBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.main{margin-left:260px;flex:1;padding:24px;}
+.topBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px;}
 .topBar h1{font-size:20px;font-weight:700;}
 .topBar p{font-size:13px;color:var(--text2);margin-top:2px;}
 .onlineBadge{display:flex;align-items:center;gap:6px;background:var(--bg2);
-  border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px;}
-.onlineDot{width:8px;height:8px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
+  border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px;white-space:nowrap;}
+.onlineDot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
-
-/* Stats row */
-.statsRow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
-.statCard{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;}
-.statCard .sIcon{font-size:22px;margin-bottom:8px;}
-.statCard .sVal{font-size:26px;font-weight:700;}
-.statCard .sLabel{font-size:12px;color:var(--text2);margin-top:2px;}
-
-/* Add device */
-.addPanel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;
-  padding:18px;margin-bottom:24px;}
-.addPanel h3{font-size:14px;font-weight:600;margin-bottom:14px;
-  display:flex;align-items:center;gap:8px;}
-.addRow{display:flex;gap:10px;flex-wrap:wrap;}
-.addRow input{flex:1;min-width:140px;padding:10px 13px;background:var(--bg3);
-  border:1px solid var(--border);border-radius:10px;color:var(--text);
-  font-size:13px;font-family:inherit;outline:none;transition:.2s;}
-.addRow input:focus{border-color:var(--accent);}
-.btnAdd{padding:10px 20px;background:linear-gradient(135deg,var(--green),#16a34a);
-  color:#fff;border:none;border-radius:10px;font-weight:600;font-size:13px;
-  cursor:pointer;font-family:inherit;white-space:nowrap;}
-.addMsg{width:100%;font-size:12px;margin-top:8px;}
-.addMsg.ok{color:var(--green);} .addMsg.err{color:var(--red);}
-
-/* Device grid */
-.sectionHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.alertBox{display:none;align-items:flex-start;gap:10px;background:#ef44441a;border:1px solid #ef444455;
+  color:#fecaca;border-radius:12px;padding:12px 14px;margin-bottom:18px;font-size:13px;line-height:1.5;}
+.alertBox.show{display:flex;}
+.alertBox strong{color:#fff;}
+.section{display:none;}
+.section.active{display:block;}
+.sectionHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;}
 .sectionHead h2{font-size:15px;font-weight:600;}
-.devCount{font-size:12px;color:var(--text2);background:var(--bg3);
-  padding:3px 10px;border-radius:20px;}
+.devCount{font-size:12px;color:var(--text2);background:var(--bg3);padding:3px 10px;border-radius:20px;white-space:nowrap;}
 #deviceGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
 
-/* Device card */
-.devCard{background:var(--bg2);border:1px solid var(--border);border-radius:16px;
-  overflow:hidden;transition:.2s;}
+.devCard,.panel{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.devCard{transition:.2s;}
 .devCard:hover{border-color:var(--bg4);transform:translateY(-1px);}
 .devCardTop{padding:16px 16px 12px;border-bottom:1px solid var(--border);}
 .devCardHead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
 .devIcon{width:40px;height:40px;background:linear-gradient(135deg,#4f8ef720,#7c3aed20);
-  border:1px solid #4f8ef730;border-radius:10px;display:flex;align-items:center;
-  justify-content:center;font-size:20px;}
+  border:1px solid #4f8ef730;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
 .devOnline{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--green);}
-.devOnlineDot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.devOnline.off{color:var(--red);}
+.devOnlineDot{width:6px;height:6px;border-radius:50%;background:currentColor;}
 .devTitle{font-size:15px;font-weight:600;margin-bottom:2px;}
 .devId{font-size:11px;color:var(--text2);}
-
-/* Sensor row */
 .sensorRow{display:flex;gap:10px;margin-top:12px;}
-.sensorChip{flex:1;background:var(--bg3);border-radius:10px;padding:10px 12px;}
+.sensorChip{flex:1;background:var(--bg3);border-radius:10px;padding:10px 12px;min-width:0;}
+.sensorChip.warn{outline:1px solid #ef444470;background:#ef44441a;}
 .sensorChip .scLabel{font-size:10px;color:var(--text2);margin-bottom:3px;}
 .sensorChip .scVal{font-size:20px;font-weight:700;}
 .sensorChip .scUnit{font-size:11px;color:var(--text2);}
-
-/* Relay section */
 .devCardBot{padding:12px 16px;}
-.relayGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.relayItem{background:var(--bg3);border-radius:10px;padding:10px 12px;
-  display:flex;align-items:center;justify-content:space-between;}
+.relayGrid{display:grid;grid-template-columns:1fr;gap:8px;}
+.relayItem{background:var(--bg3);border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;}
 .relayLeft{display:flex;align-items:center;gap:8px;}
 .relayDot{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:.3s;}
 .relayDot.on{background:var(--green);box-shadow:0 0 8px var(--green);}
 .relayDot.off{background:var(--red);box-shadow:0 0 6px var(--red);}
 .relayName{font-size:12px;font-weight:500;}
-/* Toggle switch */
 .toggle{position:relative;width:36px;height:20px;flex-shrink:0;}
 .toggle input{opacity:0;width:0;height:0;}
-.toggleSlider{position:absolute;inset:0;background:#374151;border-radius:20px;
-  cursor:pointer;transition:.3s;}
-.toggleSlider:before{content:'';position:absolute;width:14px;height:14px;
-  background:#fff;border-radius:50%;left:3px;top:3px;transition:.3s;}
+.toggleSlider{position:absolute;inset:0;background:#374151;border-radius:20px;cursor:pointer;transition:.3s;}
+.toggleSlider:before{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;left:3px;top:3px;transition:.3s;}
 .toggle input:checked + .toggleSlider{background:var(--green);}
 .toggle input:checked + .toggleSlider:before{transform:translateX(16px);}
-
-.devCardFoot{padding:8px 16px;border-top:1px solid var(--border);
-  display:flex;justify-content:space-between;align-items:center;}
+.devCardFoot{padding:8px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
 .devCardFoot span{font-size:11px;color:var(--text2);}
+.empty{text-align:center;padding:60px 20px;color:var(--text2);grid-column:1/-1;background:var(--bg2);border:1px dashed var(--border);border-radius:16px;}
+.empty .emptyIcon{font-size:42px;margin-bottom:12px;}
 
-/* Empty */
-.empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text2);}
-.empty .emptyIcon{font-size:52px;margin-bottom:12px;}
+.settingsGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;}
+.settingsCard{padding:16px;}
+.settingsCard h3{font-size:15px;margin-bottom:2px;}
+.settingsCard .devId{margin-bottom:14px;}
+.settingsRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.settingsRow.single{grid-template-columns:1fr;}
+.settingsCard label{font-size:11px;color:var(--text2);display:block;margin-bottom:5px;}
+.settingsCard input{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:13px;outline:none;}
+.settingsCard input:focus{border-color:var(--accent);}
+.btnSmall{padding:10px 14px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;}
+.saveMsg{font-size:12px;color:var(--green);margin-left:8px;}
 
-/* Responsive */
-@media(max-width:768px){
-  .sidebar{display:none;}
-  .main{margin-left:0;}
-  .statsRow{grid-template-columns:1fr 1fr;}
+.historyTools{display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin-bottom:14px;}
+.historyTools select{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 12px;outline:none;}
+.chartPanel{padding:16px;}
+.chartMeta{display:flex;justify-content:space-between;gap:12px;color:var(--text2);font-size:12px;margin-bottom:12px;}
+#historyChart{width:100%;height:360px;display:block;background:#111522;border:1px solid var(--border);border-radius:12px;}
+.legend{display:flex;gap:14px;margin-top:12px;font-size:12px;color:var(--text2);}
+.legendItem{display:flex;align-items:center;gap:6px;}
+.legendDot{width:10px;height:10px;border-radius:50%;}
+.legendDot.temp{background:#f97316;}
+.legendDot.humi{background:#38bdf8;}
+
+@media(max-width:840px){
+  .sidebar{position:static;width:100%;height:auto;}
+  .layout{display:block;}
+  .main{margin-left:0;padding:18px;}
+  .topBar{align-items:flex-start;flex-direction:column;}
+  .settingsGrid,#deviceGrid{grid-template-columns:1fr;}
 }
 </style>
 </head>
 <body>
 
-<!-- AUTH -->
 <div id="authPage">
   <div class="authCard">
     <div class="brand">
@@ -182,8 +179,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       <div class="field"><label>Email</label>
         <input type="email" id="loginEmail" placeholder="email@example.com"></div>
       <div class="field"><label>Mật khẩu</label>
-        <input type="password" id="loginPass" placeholder="••••••••"
-               onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="btnMain" onclick="doLogin()">Đăng nhập</button>
       <div class="errBox" id="loginErr"></div>
       <div class="switchLink">Chưa có tài khoản? <a onclick="showReg()">Đăng ký</a></div>
@@ -203,10 +199,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   </div>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dashPage">
   <div class="layout">
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebarLogo">
         <div class="logoIcon">🏠</div>
@@ -214,11 +208,17 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
         <p>IoT Dashboard</p>
       </div>
       <nav class="sideNav">
-        <div class="navItem active"><span class="icon">📊</span> Tổng quan</div>
-        <div class="navItem"><span class="icon">💡</span> Thiết bị</div>
-        <div class="navItem"><span class="icon">📈</span> Lịch sử</div>
-        <div class="navItem"><span class="icon">⚙️</span> Cài đặt</div>
+        <div class="navItem active" data-section="devices" onclick="switchSection('devices')"><span class="icon">💡</span> Thiết bị</div>
+        <div class="navItem" data-section="history" onclick="switchSection('history')"><span class="icon">📈</span> Lịch sử</div>
+        <div class="navItem" data-section="settings" onclick="switchSection('settings')"><span class="icon">⚙️</span> Cài đặt</div>
       </nav>
+      <div class="sidebarAdd">
+        <h3>➕ Thêm thiết bị</h3>
+        <input id="addId" placeholder="ID thiết bị (VD: ESP001)">
+        <input id="addSecret" placeholder="Mã kích hoạt (VD: A3F7)">
+        <button class="btnAdd" onclick="claimDevice()">Kích hoạt</button>
+        <div class="addMsg" id="addMsg"></div>
+      </div>
       <div class="sidebarBottom">
         <div class="userInfo">
           <div class="avatar">👤</div>
@@ -228,11 +228,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       </div>
     </aside>
 
-    <!-- Main -->
     <main class="main">
       <div class="topBar">
         <div>
-          <h1>Tổng quan</h1>
+          <h1 id="pageTitle">Thiết bị</h1>
           <p id="greeting">Chào mừng trở lại!</p>
         </div>
         <div class="onlineBadge">
@@ -241,52 +240,52 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
         </div>
       </div>
 
-      <!-- Stats -->
-      <div class="statsRow">
-        <div class="statCard">
-          <div class="sIcon">📡</div>
-          <div class="sVal" id="statTotal">0</div>
-          <div class="sLabel">Tổng thiết bị</div>
-        </div>
-        <div class="statCard">
-          <div class="sIcon">✅</div>
-          <div class="sVal" id="statOnline">0</div>
-          <div class="sLabel">Đang online</div>
-        </div>
-        <div class="statCard">
-          <div class="sIcon">⚡</div>
-          <div class="sVal" id="statRelay">0</div>
-          <div class="sLabel">Relay đang bật</div>
-        </div>
-        <div class="statCard">
-          <div class="sIcon">🌡️</div>
-          <div class="sVal" id="statTemp">--</div>
-          <div class="sLabel">Nhiệt độ TB (°C)</div>
-        </div>
+      <div class="alertBox" id="alertBox">
+        <span>🔔</span>
+        <div id="alertText"></div>
       </div>
 
-      <!-- Add device -->
-      <div class="addPanel">
-        <h3>➕ Thêm thiết bị mới</h3>
-        <div class="addRow">
-          <input id="addId"     placeholder="ID thiết bị (VD: ESP001)">
-          <input id="addSecret" placeholder="Mã kích hoạt (VD: A3F7)">
-          <button class="btnAdd" onclick="claimDevice()">Kích hoạt</button>
+      <section class="section active" id="section-devices">
+        <div class="sectionHead">
+          <h2>Thiết bị của bạn</h2>
+          <span class="devCount" id="devCountBadge">0 thiết bị</span>
         </div>
-        <div class="addMsg" id="addMsg"></div>
-      </div>
+        <div id="deviceGrid">
+          <div class="empty">
+            <div class="emptyIcon">🏠</div>
+            <p>Chưa có thiết bị nào.<br>Thêm thiết bị ở thanh bên trái để bắt đầu.</p>
+          </div>
+        </div>
+      </section>
 
-      <!-- Devices -->
-      <div class="sectionHead">
-        <h2>Thiết bị của bạn</h2>
-        <span class="devCount" id="devCountBadge">0 thiết bị</span>
-      </div>
-      <div id="deviceGrid">
-        <div class="empty">
-          <div class="emptyIcon">🏠</div>
-          <p>Chưa có thiết bị nào.<br>Thêm thiết bị ở trên để bắt đầu.</p>
+      <section class="section" id="section-history">
+        <div class="sectionHead">
+          <h2>Lịch sử cảm biến</h2>
+          <span class="devCount">Mỗi điểm dữ liệu cách nhau 5 phút</span>
         </div>
-      </div>
+        <div class="historyTools">
+          <select id="historyDevice" onchange="drawHistory()"></select>
+        </div>
+        <div class="panel chartPanel">
+          <div class="chartMeta">
+            <span id="historyTitle">Chưa có dữ liệu</span>
+            <span id="historyRange">--</span>
+          </div>
+          <canvas id="historyChart" width="1200" height="360"></canvas>
+          <div class="legend">
+            <div class="legendItem"><span class="legendDot temp"></span> Nhiệt độ (°C)</div>
+            <div class="legendItem"><span class="legendDot humi"></span> Độ ẩm (%)</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="section-settings">
+        <div class="sectionHead">
+          <h2>Cài đặt thiết bị</h2>
+          <span class="devCount">Tên loại thiết bị và ngưỡng cảnh báo</span>
+        </div>
+        <div class="settingsGrid" id="settingsGrid"></div>
+      </section>
     </main>
   </div>
 </div>
@@ -305,9 +304,9 @@ firebase.initializeApp({
   appId:"1:569379349:web:e7524620b0496bae941c1c"
 });
 const auth=firebase.auth(), db=firebase.database();
-let uid=null, listeners={}, devData={};
+let uid=null, listeners={}, devData={}, activeSection='devices', audioCtx=null, lastAlarmAt={};
+const sampleEveryMs=5*60*1000;
 
-// AUTH
 auth.onAuthStateChanged(u=>{
   if(u){
     uid=u.uid;
@@ -315,6 +314,7 @@ auth.onAuthStateChanged(u=>{
     document.getElementById('greeting').textContent='Chào, '+u.email.split('@')[0]+'!';
     document.getElementById('authPage').style.display='none';
     document.getElementById('dashPage').style.display='block';
+    switchSection('devices');
     loadDevices();
   } else {
     uid=null; clearListeners();
@@ -345,35 +345,44 @@ function doLogout(){auth.signOut();}
 function showReg(){document.getElementById('loginBox').style.display='none';document.getElementById('regBox').style.display='block';}
 function showLogin(){document.getElementById('loginBox').style.display='block';document.getElementById('regBox').style.display='none';}
 
-// CLAIM
+function switchSection(name){
+  activeSection=name;
+  document.querySelectorAll('.navItem').forEach(i=>i.classList.toggle('active',i.dataset.section===name));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');
+  document.getElementById('pageTitle').textContent=({devices:'Thiết bị',history:'Lịch sử',settings:'Cài đặt'})[name];
+  if(name==='history') refreshHistorySelect();
+  if(name==='settings') renderSettings();
+}
+
 function claimDevice(){
   const id=document.getElementById('addId').value.trim().toUpperCase();
   const sc=document.getElementById('addSecret').value.trim().toUpperCase();
   const msg=document.getElementById('addMsg');
-  msg.className='addMsg'; msg.textContent='⏳ Đang kiểm tra...';
-  if(!id||!sc){msg.className='addMsg err';msg.textContent='❌ Nhập đủ ID và mã kích hoạt';return;}
+  msg.className='addMsg'; msg.textContent='Đang kiểm tra...';
+  if(!id||!sc){msg.className='addMsg err';msg.textContent='Nhập đủ ID và mã kích hoạt';return;}
   db.ref('devices/'+id).once('value').then(snap=>{
-    if(!snap.exists()){msg.className='addMsg err';msg.textContent='❌ Không tìm thấy thiết bị';return;}
+    if(!snap.exists()){msg.className='addMsg err';msg.textContent='Không tìm thấy thiết bị';return;}
     const d=snap.val();
-    if(d.secret!==sc){msg.className='addMsg err';msg.textContent='❌ Mã kích hoạt không đúng';return;}
-    if(d.claimed){msg.className='addMsg err';msg.textContent='❌ Thiết bị đã được đăng ký';return;}
+    if(d.secret!==sc){msg.className='addMsg err';msg.textContent='Mã kích hoạt không đúng';return;}
+    if(d.claimed){msg.className='addMsg err';msg.textContent='Thiết bị đã được đăng ký';return;}
     db.ref('devices/'+id).update({claimed:true,owner:uid});
     db.ref('users/'+uid+'/devices/'+id).set(true);
+    db.ref('users/'+uid+'/deviceSettings/'+id).set(defaultSettings(d.name||'Relay Thông Minh'));
     document.getElementById('addId').value='';
     document.getElementById('addSecret').value='';
-    msg.className='addMsg ok'; msg.textContent='✅ Kích hoạt thành công!';
+    msg.className='addMsg ok'; msg.textContent='Kích hoạt thành công!';
     loadDevices();
   });
 }
 
-// LOAD
 function loadDevices(){
   clearListeners();
   db.ref('users/'+uid+'/devices').once('value').then(snap=>{
     const grid=document.getElementById('deviceGrid');
     if(!snap.exists()||!snap.val()){
-      grid.innerHTML='<div class="empty"><div class="emptyIcon">🏠</div><p>Chưa có thiết bị nào.<br>Thêm thiết bị ở trên để bắt đầu.</p></div>';
-      updateStats();return;
+      grid.innerHTML='<div class="empty"><div class="emptyIcon">🏠</div><p>Chưa có thiết bị nào.<br>Thêm thiết bị ở thanh bên trái để bắt đầu.</p></div>';
+      updateStats(); renderSettings(); refreshHistorySelect(); return;
     }
     grid.innerHTML='';
     Object.keys(snap.val()).forEach(id=>listenDevice(id));
@@ -384,7 +393,18 @@ function loadDevices(){
 function listenDevice(id){
   const r=db.ref('devices/'+id);
   const cb=r.on('value',snap=>{
-    if(snap.exists()){devData[id]=snap.val();renderCard(id,snap.val());updateStats();}
+    if(snap.exists()){
+      const device=snap.val();
+      db.ref('users/'+uid+'/deviceSettings/'+id).once('value').then(settingSnap=>{
+        devData[id]={...device, settings:{...defaultSettings(device.name||'Relay Thông Minh'), ...(settingSnap.val()||{})}};
+        maybeStoreHistory(id,devData[id]);
+        renderCard(id,devData[id]);
+        updateStats();
+        renderSettings();
+        refreshHistorySelect();
+        checkAlerts();
+      });
+    }
   });
   listeners[id]={ref:r,cb};
 }
@@ -393,60 +413,57 @@ function clearListeners(){
   listeners={}; devData={};
 }
 
-// RENDER CARD
+function defaultSettings(name){
+  return {deviceType:name,tempMin:0,tempMax:35,humiMin:20,humiMax:80,alarmEnabled:true};
+}
+
 function renderCard(id,d){
   const grid=document.getElementById('deviceGrid');
   const empty=grid.querySelector('.empty');
   if(empty) empty.remove();
-
   let card=document.getElementById('card-'+id);
   if(!card){card=document.createElement('div');card.className='devCard';card.id='card-'+id;grid.appendChild(card);}
-
   const features=(d.features||'').split(',');
   const relayOn=d.relay===1;
   const ts=d.last_update?new Date(d.last_update*1000).toLocaleTimeString('vi-VN'):'--';
-
-  // Kiểm tra online: last_update trong vòng 15s
   const now=Math.floor(Date.now()/1000);
-  const isOnline=d.last_update && (now - d.last_update) < 15;
+  const isOnline=d.last_update && (now-d.last_update)<15;
+  const settings=d.settings||defaultSettings(d.name||id);
+  const tempWarn=features.includes('temp') && isOutOfRange(d.temp,settings.tempMin,settings.tempMax);
+  const humiWarn=features.includes('humi') && isOutOfRange(d.humi,settings.humiMin,settings.humiMax);
 
   let sensorHtml='';
   if(features.includes('temp')||features.includes('humi')){
     sensorHtml='<div class="sensorRow">';
     if(features.includes('temp'))
-      sensorHtml+=`<div class="sensorChip"><div class="scLabel">🌡 Nhiệt độ</div>
-        <span class="scVal">${(d.temp||0).toFixed(1)}</span><span class="scUnit"> °C</span></div>`;
+      sensorHtml+=`<div class="sensorChip ${tempWarn?'warn':''}"><div class="scLabel">🌡 Nhiệt độ</div>
+        <span class="scVal">${num(d.temp)}</span><span class="scUnit"> °C</span></div>`;
     if(features.includes('humi'))
-      sensorHtml+=`<div class="sensorChip"><div class="scLabel">💧 Độ ẩm</div>
-        <span class="scVal">${(d.humi||0).toFixed(1)}</span><span class="scUnit"> %</span></div>`;
+      sensorHtml+=`<div class="sensorChip ${humiWarn?'warn':''}"><div class="scLabel">💧 Độ ẩm</div>
+        <span class="scVal">${num(d.humi)}</span><span class="scUnit"> %</span></div>`;
     sensorHtml+='</div>';
   }
-
-  let relayHtml='';
-  if(features.includes('relay')){
-    relayHtml=`<div class="devCardBot">
-      <div class="relayGrid">
-        <div class="relayItem">
-          <div class="relayLeft">
-            <div class="relayDot ${relayOn?'on':'off'}"></div>
-            <span class="relayName">Relay</span>
-          </div>
-          <label class="toggle">
-            <input type="checkbox" ${relayOn?'checked':''} onchange="toggleRelay('${id}',this.checked?1:0)">
-            <span class="toggleSlider"></span>
-          </label>
+  const relayHtml=features.includes('relay')?`<div class="devCardBot">
+    <div class="relayGrid">
+      <div class="relayItem">
+        <div class="relayLeft">
+          <div class="relayDot ${relayOn?'on':'off'}"></div>
+          <span class="relayName">Relay</span>
         </div>
+        <label class="toggle">
+          <input type="checkbox" ${relayOn?'checked':''} onchange="toggleRelay('${id}',this.checked?1:0)">
+          <span class="toggleSlider"></span>
+        </label>
       </div>
-    </div>`;
-  }
-
+    </div>
+  </div>`:'';
   card.innerHTML=`
     <div class="devCardTop">
       <div class="devCardHead">
         <div class="devIcon">⚡</div>
-        <div class="devOnline"><div class="devOnlineDot"></div>${isOnline?'Online':'Offline'}</div>
+        <div class="devOnline ${isOnline?'':'off'}"><div class="devOnlineDot"></div>${isOnline?'Online':'Offline'}</div>
       </div>
-      <div class="devTitle">${d.name||id}</div>
+      <div class="devTitle">${escapeHtml(settings.deviceType||d.name||id)}</div>
       <div class="devId">${id}</div>
       ${sensorHtml}
     </div>
@@ -457,36 +474,212 @@ function renderCard(id,d){
     </div>`;
 }
 
-// TOGGLE RELAY
 function toggleRelay(id,state){
   db.ref('devices/'+id).update({relay_cmd:state});
 }
 
-// STATS
+function renderSettings(){
+  const box=document.getElementById('settingsGrid');
+  const ids=Object.keys(devData);
+  if(!ids.length){
+    box.innerHTML='<div class="empty"><div class="emptyIcon">⚙️</div><p>Chưa có thiết bị để cài đặt.</p></div>';
+    return;
+  }
+  box.innerHTML=ids.map(id=>{
+    const s=devData[id].settings||defaultSettings(devData[id].name||id);
+    return `<div class="panel settingsCard">
+      <h3>${escapeHtml(s.deviceType||id)}</h3>
+      <div class="devId">${id}</div>
+      <div class="settingsRow single">
+        <div><label>Tên loại thiết bị</label><input id="type-${id}" value="${escapeAttr(s.deviceType||'')}"></div>
+      </div>
+      <div class="settingsRow">
+        <div><label>Nhiệt độ thấp nhất (°C)</label><input type="number" step="0.1" id="tmin-${id}" value="${s.tempMin}"></div>
+        <div><label>Nhiệt độ cao nhất (°C)</label><input type="number" step="0.1" id="tmax-${id}" value="${s.tempMax}"></div>
+      </div>
+      <div class="settingsRow">
+        <div><label>Độ ẩm thấp nhất (%)</label><input type="number" step="0.1" id="hmin-${id}" value="${s.humiMin}"></div>
+        <div><label>Độ ẩm cao nhất (%)</label><input type="number" step="0.1" id="hmax-${id}" value="${s.humiMax}"></div>
+      </div>
+      <div class="settingsRow">
+        <div><label>Bật chuông cảnh báo</label>
+          <label class="toggle"><input type="checkbox" id="alarm-${id}" ${s.alarmEnabled?'checked':''}><span class="toggleSlider"></span></label>
+        </div>
+        <div style="display:flex;align-items:end;gap:8px">
+          <button class="btnSmall" onclick="saveSettings('${id}')">Lưu</button>
+          <span class="saveMsg" id="save-${id}"></span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveSettings(id){
+  const settings={
+    deviceType:document.getElementById('type-'+id).value.trim()||id,
+    tempMin:readNumber('tmin-'+id,0),
+    tempMax:readNumber('tmax-'+id,35),
+    humiMin:readNumber('hmin-'+id,20),
+    humiMax:readNumber('hmax-'+id,80),
+    alarmEnabled:document.getElementById('alarm-'+id).checked
+  };
+  db.ref('users/'+uid+'/deviceSettings/'+id).set(settings).then(()=>{
+    devData[id].settings=settings;
+    renderCard(id,devData[id]);
+    checkAlerts();
+    const msg=document.getElementById('save-'+id);
+    msg.textContent='Đã lưu';
+    setTimeout(()=>msg.textContent='',1600);
+  });
+}
+
+function checkAlerts(){
+  const messages=[];
+  Object.keys(devData).forEach(id=>{
+    const d=devData[id], s=d.settings||defaultSettings(d.name||id);
+    const name=s.deviceType||id;
+    if(isOutOfRange(d.temp,s.tempMin,s.tempMax)) messages.push(`<strong>${escapeHtml(name)}</strong>: nhiệt độ ${num(d.temp)}°C vượt ngưỡng ${s.tempMin}-${s.tempMax}°C`);
+    if(isOutOfRange(d.humi,s.humiMin,s.humiMax)) messages.push(`<strong>${escapeHtml(name)}</strong>: độ ẩm ${num(d.humi)}% vượt ngưỡng ${s.humiMin}-${s.humiMax}%`);
+    if(messages.length && s.alarmEnabled) ringAlarm(id);
+  });
+  const box=document.getElementById('alertBox');
+  document.getElementById('alertText').innerHTML=messages.join('<br>');
+  box.classList.toggle('show',messages.length>0);
+}
+
+function ringAlarm(id){
+  const now=Date.now();
+  if(lastAlarmAt[id] && now-lastAlarmAt[id]<30000) return;
+  lastAlarmAt[id]=now;
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type='square';
+    osc.frequency.value=880;
+    gain.gain.setValueAtTime(0.001,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.12,audioCtx.currentTime+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.55);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime+0.6);
+  }catch(e){}
+}
+
+function maybeStoreHistory(id,d){
+  const features=(d.features||'').split(',');
+  if(!features.includes('temp')&&!features.includes('humi')) return;
+  const key='sensorHistory:'+uid+':'+id;
+  const items=JSON.parse(localStorage.getItem(key)||'[]');
+  const last=items[items.length-1];
+  const bucket=Math.floor(Date.now()/sampleEveryMs)*sampleEveryMs;
+  if(last && last.t===bucket) return;
+  items.push({t:bucket,temp:validNumber(d.temp)?Number(d.temp):null,humi:validNumber(d.humi)?Number(d.humi):null});
+  localStorage.setItem(key,JSON.stringify(items.slice(-288)));
+  if(activeSection==='history') drawHistory();
+}
+
+function refreshHistorySelect(){
+  const select=document.getElementById('historyDevice');
+  const ids=Object.keys(devData);
+  const current=select.value;
+  select.innerHTML=ids.map(id=>`<option value="${id}">${escapeHtml((devData[id].settings||{}).deviceType||id)} (${id})</option>`).join('');
+  if(ids.includes(current)) select.value=current;
+  drawHistory();
+}
+
+function drawHistory(){
+  const canvas=document.getElementById('historyChart');
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const id=document.getElementById('historyDevice').value;
+  const title=document.getElementById('historyTitle');
+  const range=document.getElementById('historyRange');
+  if(!id){
+    drawEmptyChart(ctx,canvas,'Chưa có thiết bị');
+    title.textContent='Chưa có dữ liệu';
+    range.textContent='--';
+    return;
+  }
+  const data=JSON.parse(localStorage.getItem('sensorHistory:'+uid+':'+id)||'[]');
+  const name=(devData[id]?.settings||{}).deviceType||id;
+  title.textContent=name+' - '+id;
+  if(!data.length){
+    drawEmptyChart(ctx,canvas,'Đang chờ dữ liệu cảm biến 5 phút/lần');
+    range.textContent='--';
+    return;
+  }
+  range.textContent=new Date(data[0].t).toLocaleTimeString('vi-VN')+' - '+new Date(data[data.length-1].t).toLocaleTimeString('vi-VN');
+  drawLineChart(ctx,canvas,data);
+}
+
+function drawLineChart(ctx,canvas,data){
+  const pad={l:54,r:24,t:22,b:48};
+  const w=canvas.width-pad.l-pad.r, h=canvas.height-pad.t-pad.b;
+  ctx.fillStyle='#111522'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='#2d3348'; ctx.lineWidth=1;
+  ctx.font='12px Inter, sans-serif'; ctx.fillStyle='#94a3b8';
+  for(let i=0;i<=4;i++){
+    const y=pad.t+h*i/4;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+w,y); ctx.stroke();
+    ctx.fillText(String(Math.round(100-(i*25))),12,y+4);
+  }
+  const minT=data[0].t, maxT=data[data.length-1].t||minT+1;
+  const xOf=t=>pad.l+((t-minT)/(maxT-minT||1))*w;
+  const yOf=v=>pad.t+h-(Math.max(0,Math.min(100,v))/100)*h;
+  drawSeries(ctx,data,'temp','#f97316',xOf,yOf);
+  drawSeries(ctx,data,'humi','#38bdf8',xOf,yOf);
+  ctx.strokeStyle='#94a3b8'; ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,pad.t+h); ctx.lineTo(pad.l+w,pad.t+h); ctx.stroke();
+  const ticks=Math.min(6,data.length);
+  for(let i=0;i<ticks;i++){
+    const item=data[Math.round((data.length-1)*i/(ticks-1||1))];
+    ctx.fillStyle='#94a3b8';
+    ctx.fillText(new Date(item.t).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}),xOf(item.t)-18,pad.t+h+28);
+  }
+}
+function drawSeries(ctx,data,key,color,xOf,yOf){
+  ctx.strokeStyle=color; ctx.lineWidth=3; ctx.beginPath();
+  let started=false;
+  data.forEach(item=>{
+    if(!validNumber(item[key])) return;
+    const y=yOf(Number(item[key])), x=xOf(item.t);
+    if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  ctx.fillStyle=color;
+  data.forEach(item=>{
+    if(!validNumber(item[key])) return;
+    ctx.beginPath(); ctx.arc(xOf(item.t),yOf(Number(item[key])),4,0,Math.PI*2); ctx.fill();
+  });
+}
+function drawEmptyChart(ctx,canvas,text){
+  ctx.fillStyle='#111522'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#94a3b8'; ctx.font='18px Inter, sans-serif'; ctx.textAlign='center';
+  ctx.fillText(text,canvas.width/2,canvas.height/2);
+  ctx.textAlign='left';
+}
+
 function updateStats(){
   const ids=Object.keys(devData);
-  let online=0,relayOn=0,tempSum=0,tempCount=0;
-  const now2=Math.floor(Date.now()/1000);
-  ids.forEach(id=>{
-    const d=devData[id];
-    if(d.last_update&&(now2-d.last_update)<15) online++;
-    if(d.relay===1) relayOn++;
-    if(d.temp&&d.temp>0){tempSum+=d.temp;tempCount++;}
-  });
-  document.getElementById('statTotal').textContent=ids.length;
-  document.getElementById('statOnline').textContent=online;
-  document.getElementById('statRelay').textContent=relayOn;
-  document.getElementById('statTemp').textContent=tempCount?( tempSum/tempCount).toFixed(1):'--';
+  let online=0;
+  const now=Math.floor(Date.now()/1000);
+  ids.forEach(id=>{const d=devData[id]; if(d.last_update&&(now-d.last_update)<15) online++;});
   document.getElementById('onlineCount').textContent=online+' thiết bị online';
   document.getElementById('devCountBadge').textContent=ids.length+' thiết bị';
 }
 
-// Tự kiểm tra online/offline mỗi 10s dù không có dữ liệu mới
 setInterval(()=>{
-  Object.keys(devData).forEach(id=>renderCard(id,devData[id]));
+  Object.keys(devData).forEach(id=>{maybeStoreHistory(id,devData[id]);renderCard(id,devData[id]);});
   updateStats();
-}, 10000);
+  checkAlerts();
+},10000);
 
+function isOutOfRange(v,min,max){return validNumber(v)&&(Number(v)<Number(min)||Number(v)>Number(max));}
+function validNumber(v){return v!==null&&v!==undefined&&!Number.isNaN(Number(v));}
+function readNumber(id,fallback){const n=Number(document.getElementById(id).value);return Number.isNaN(n)?fallback:n;}
+function num(v){return validNumber(v)?Number(v).toFixed(1):'--';}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function escapeAttr(s){return escapeHtml(s).replace(/"/g,'&quot;');}
 function fErr(c){
   return({'auth/invalid-email':'Email không hợp lệ','auth/user-not-found':'Tài khoản không tồn tại',
     'auth/wrong-password':'Sai mật khẩu','auth/invalid-credential':'Email hoặc mật khẩu không đúng',
