@@ -108,6 +108,10 @@ button,input,select{font-family:inherit;}
 .devCard,.panel{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
 .devCard{transition:.2s;}
 .devCard:hover{border-color:var(--bg4);transform:translateY(-1px);}
+.devCard.offline{opacity:.48;filter:grayscale(.65);}
+.devCard.offline:hover{transform:none;border-color:var(--border);}
+.devCard.offline .sensorChip,.devCard.offline .relayItem{background:#202433;}
+.devCard.offline .toggleSlider{cursor:not-allowed;}
 .devCardTop{padding:16px 16px 12px;border-bottom:1px solid var(--border);}
 .devCardHead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
 .devIcon{width:40px;height:40px;background:linear-gradient(135deg,#4f8ef720,#7c3aed20);
@@ -126,6 +130,8 @@ button,input,select{font-family:inherit;}
 .devCardBot{padding:12px 16px;}
 .relayGrid{display:grid;grid-template-columns:1fr;gap:8px;}
 .relayItem{background:var(--bg3);border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;}
+.relayItem.disabled{opacity:.72;cursor:not-allowed;}
+.relayItem.pending{outline:1px solid #4f8ef766;}
 .relayLeft{display:flex;align-items:center;gap:8px;}
 .relayDot{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:.3s;}
 .relayDot.on{background:var(--green);box-shadow:0 0 8px var(--green);}
@@ -135,6 +141,7 @@ button,input,select{font-family:inherit;}
 .toggle input{opacity:0;width:0;height:0;}
 .toggleSlider{position:absolute;inset:0;background:#374151;border-radius:20px;cursor:pointer;transition:.3s;}
 .toggleSlider:before{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;left:3px;top:3px;transition:.3s;}
+.toggle input:disabled + .toggleSlider{opacity:.65;cursor:not-allowed;}
 .toggle input:checked + .toggleSlider{background:var(--green);}
 .toggle input:checked + .toggleSlider:before{transform:translateX(16px);}
 .devCardFoot{padding:8px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
@@ -237,6 +244,7 @@ button,input,select{font-family:inherit;}
         <div class="navItem active" data-section="devices" onclick="switchSection('devices')"><span class="icon">💡</span> Thiết bị</div>
         <div class="navItem" data-section="history" onclick="switchSection('history')"><span class="icon">📈</span> Lịch sử</div>
         <div class="navItem" data-section="settings" onclick="switchSection('settings')"><span class="icon">⚙️</span> Cài đặt</div>
+        <div class="navItem" data-section="wifi" onclick="switchSection('wifi')"><span class="icon">📶</span> WiFi</div>
       </nav>
       <div class="sidebarAdd">
         <h3>➕ Thêm thiết bị</h3>
@@ -290,7 +298,7 @@ button,input,select{font-family:inherit;}
       <section class="section" id="section-history">
         <div class="sectionHead">
           <h2>Lịch sử cảm biến</h2>
-          <span class="devCount">Mỗi điểm dữ liệu cách nhau 5 phút</span>
+          <span class="devCount">Dữ liệu cảm biến cập nhật 3 giây/lần</span>
         </div>
         <div class="historyTools">
           <select id="historyDevice" onchange="drawHistory()"></select>
@@ -315,6 +323,14 @@ button,input,select{font-family:inherit;}
         </div>
         <div class="settingsGrid" id="settingsGrid"></div>
       </section>
+
+      <section class="section" id="section-wifi">
+        <div class="sectionHead">
+          <h2>Cài đặt WiFi dự phòng</h2>
+          <span class="devCount">ESP sẽ dùng WiFi mới khi mất WiFi hiện tại</span>
+        </div>
+        <div class="settingsGrid" id="wifiGrid"></div>
+      </section>
     </main>
   </div>
 </div>
@@ -333,8 +349,9 @@ firebase.initializeApp({
   appId:"1:569379349:web:e7524620b0496bae941c1c"
 });
 const auth=firebase.auth(), db=firebase.database();
-let uid=null, listeners={}, devData={}, activeSection='devices', audioCtx=null, lastAlarmAt={};
-const sampleEveryMs=5*60*1000;
+let uid=null, listeners={}, devData={}, activeSection='devices', audioCtx=null, lastAlarmAt={}, pendingRelay={}, wifiFormDirty=false;
+const sampleEveryMs=3000;
+const onlineWindowMs=12000;
 
 auth.onAuthStateChanged(u=>{
   if(u){
@@ -382,9 +399,10 @@ function switchSection(name){
   document.querySelectorAll('.navItem').forEach(i=>i.classList.toggle('active',i.dataset.section===name));
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('section-'+name).classList.add('active');
-  document.getElementById('pageTitle').textContent=({devices:'Thiết bị',history:'Lịch sử',settings:'Cài đặt'})[name];
+  document.getElementById('pageTitle').textContent=({devices:'Thiết bị',history:'Lịch sử',settings:'Cài đặt',wifi:'WiFi'})[name];
   if(name==='history') refreshHistorySelect();
   if(name==='settings') renderSettings();
+  if(name==='wifi') { wifiFormDirty=false; renderWifiSettings(); }
 }
 
 function claimDevice(){
@@ -415,7 +433,7 @@ function loadDevices(){
     const grid=document.getElementById('deviceGrid');
     if(!snap.exists()||!snap.val()){
       grid.innerHTML='<div class="empty"><div class="emptyIcon">🏠</div><p>Chưa có thiết bị nào.<br>Bấm menu ☰ để thêm thiết bị.</p></div>';
-      updateStats(); renderSettings(); refreshHistorySelect(); return;
+      updateStats(); renderSettings(); renderWifiSettings(); refreshHistorySelect(); return;
     }
     grid.innerHTML='';
     Object.keys(snap.val()).forEach(id=>listenDevice(id));
@@ -434,6 +452,7 @@ function listenDevice(id){
         renderCard(id,devData[id]);
         updateStats();
         if(activeSection==='settings') renderSettings();
+        if(activeSection==='wifi' && !wifiFormDirty) renderWifiSettings();
         refreshHistorySelect();
         checkAlerts();
       });
@@ -443,7 +462,7 @@ function listenDevice(id){
 }
 function clearListeners(){
   Object.values(listeners).forEach(l=>l.ref.off('value',l.cb));
-  listeners={}; devData={};
+  listeners={}; devData={}; pendingRelay={}; wifiFormDirty=false;
 }
 
 function defaultSettings(name){
@@ -457,10 +476,16 @@ function renderCard(id,d){
   let card=document.getElementById('card-'+id);
   if(!card){card=document.createElement('div');card.className='devCard';card.id='card-'+id;grid.appendChild(card);}
   const features=(d.features||'').split(',');
-  const relayOn=d.relay===1;
-  const ts=d.last_update?new Date(d.last_update*1000).toLocaleTimeString('vi-VN'):'--';
-  const now=Math.floor(Date.now()/1000);
-  const isOnline=d.last_update && (now-d.last_update)<15;
+  const actualRelay=normalizeRelay(d.relay);
+  const commandRelay=normalizeRelay(d.relay_cmd);
+  const pendingState=pendingRelay[id]?.state;
+  if(pendingRelay[id] && actualRelay===pendingState) delete pendingRelay[id];
+  const relayPending=pendingRelay[id] || (commandRelay!==null && commandRelay!==actualRelay);
+  const relayOn=(relayPending ? (pendingRelay[id]?.state ?? commandRelay) : actualRelay)===1;
+  const tsMs=getDeviceLastSeenMs(d);
+  const ts=tsMs?new Date(tsMs).toLocaleTimeString('vi-VN'):'--';
+  const isOnline=isDeviceOnline(d);
+  card.classList.toggle('offline',!isOnline);
   const settings=d.settings||defaultSettings(d.name||id);
   const tempWarn=features.includes('temp') && isOutOfRange(d.temp,settings.tempMin,settings.tempMax);
   const humiWarn=features.includes('humi') && isOutOfRange(d.humi,settings.humiMin,settings.humiMax);
@@ -478,13 +503,13 @@ function renderCard(id,d){
   }
   const relayHtml=features.includes('relay')?`<div class="devCardBot">
     <div class="relayGrid">
-      <div class="relayItem">
+      <div class="relayItem ${!isOnline?'disabled':''} ${relayPending?'pending':''}">
         <div class="relayLeft">
           <div class="relayDot ${relayOn?'on':'off'}"></div>
-          <span class="relayName">Relay</span>
+          <span class="relayName">Relay${relayPending?' (đang gửi)':''}</span>
         </div>
         <label class="toggle">
-          <input type="checkbox" ${relayOn?'checked':''} onchange="toggleRelay('${id}',this.checked?1:0)">
+          <input type="checkbox" ${relayOn?'checked':''} ${!isOnline?'disabled':''} onchange="toggleRelay('${id}',this.checked?1:0)">
           <span class="toggleSlider"></span>
         </label>
       </div>
@@ -508,7 +533,23 @@ function renderCard(id,d){
 }
 
 function toggleRelay(id,state){
-  db.ref('devices/'+id).update({relay_cmd:state});
+  const d=devData[id];
+  if(!d || !isDeviceOnline(d)){
+    renderCard(id,d||{});
+    return;
+  }
+  const current=normalizeRelay(d.relay);
+  if(current===state && normalizeRelay(d.relay_cmd)!==null) return;
+  pendingRelay[id]={state,at:Date.now()};
+  renderCard(id,d);
+  db.ref('devices/'+id).update({
+    relay_cmd:state,
+    relay_source:'web',
+    relay_cmd_at:firebase.database.ServerValue.TIMESTAMP
+  }).catch(()=>{
+    delete pendingRelay[id];
+    renderCard(id,devData[id]);
+  });
 }
 
 function renderSettings(){
@@ -566,10 +607,81 @@ function saveSettings(id){
   });
 }
 
+function renderWifiSettings(){
+  const box=document.getElementById('wifiGrid');
+  const ids=Object.keys(devData);
+  if(!ids.length){
+    box.innerHTML='<div class="empty"><div class="emptyIcon">📶</div><p>Chưa có thiết bị để cài WiFi.</p></div>';
+    return;
+  }
+  box.innerHTML=ids.map(id=>{
+    const d=devData[id];
+    const s=d.settings||defaultSettings(d.name||id);
+    const wifi=d.wifi_config||{};
+    const pending=wifi.ssid?`WiFi dự phòng hiện tại: ${escapeHtml(wifi.ssid)}`:'Chưa đặt WiFi dự phòng';
+    const synced=wifi.ssid?(wifi.synced?'ESP đã nhận cấu hình':'Đang chờ ESP nhận cấu hình'):'--';
+    const updated=wifi.updated_at?new Date(wifi.updated_at).toLocaleString('vi-VN'):'--';
+    return `<div class="panel settingsCard">
+      <h3>${escapeHtml(s.deviceType||id)}</h3>
+      <div class="devId">${id}</div>
+      <div class="settingsRow single">
+        <div><label>Tên WiFi mới</label><input id="wifi-ssid-${id}" value="${escapeAttr(wifi.ssid||'')}" placeholder="SSID WiFi mới" oninput="markWifiFormDirty()"></div>
+      </div>
+      <div class="settingsRow single">
+        <div><label>Mật khẩu WiFi mới</label><input type="password" id="wifi-pass-${id}" placeholder="Nhập mật khẩu mới" oninput="markWifiFormDirty()"></div>
+      </div>
+      <div class="settingsRow single">
+        <div style="display:flex;align-items:end;gap:8px;flex-wrap:wrap">
+          <button class="btnSmall" onclick="saveWifiSettings('${id}')">Lưu WiFi dự phòng</button>
+          <span class="saveMsg" id="wifi-save-${id}"></span>
+        </div>
+      </div>
+      <div class="devId">${pending}<br>Trạng thái: ${synced}<br>Cập nhật: ${updated}</div>
+    </div>`;
+  }).join('');
+}
+
+function markWifiFormDirty(){
+  wifiFormDirty=true;
+}
+
+function saveWifiSettings(id){
+  const ssid=document.getElementById('wifi-ssid-'+id).value.trim();
+  const pass=document.getElementById('wifi-pass-'+id).value;
+  const msg=document.getElementById('wifi-save-'+id);
+  if(!ssid || !pass){
+    msg.style.color='var(--red)';
+    msg.textContent='Nhập đủ WiFi và mật khẩu';
+    return;
+  }
+  const payload={
+    ssid,
+    pass,
+    source:'web',
+    updated_at:firebase.database.ServerValue.TIMESTAMP,
+    apply_when:'current_wifi_lost',
+    synced:false,
+    pass_set:true
+  };
+  db.ref('devices/'+id+'/wifi_config').set(payload).then(()=>{
+    wifiFormDirty=false;
+    devData[id].wifi_config={...payload,updated_at:Date.now()};
+    document.getElementById('wifi-pass-'+id).value='';
+    msg.style.color='var(--green)';
+    msg.textContent='Đã gửi';
+    setTimeout(()=>msg.textContent='',1600);
+    renderWifiSettings();
+  }).catch(err=>{
+    msg.style.color='var(--red)';
+    msg.textContent=err.message||'Không lưu được';
+  });
+}
+
 function checkAlerts(){
   const messages=[];
   Object.keys(devData).forEach(id=>{
     const d=devData[id], s=d.settings||defaultSettings(d.name||id);
+    if(!isDeviceOnline(d)) return;
     const name=s.deviceType||id;
     let deviceAlert=false;
     if(isOutOfRange(d.temp,s.tempMin,s.tempMax)){
@@ -607,6 +719,7 @@ function ringAlarm(id){
 }
 
 function maybeStoreHistory(id,d){
+  if(!isDeviceOnline(d)) return;
   const features=(d.features||'').split(',');
   if(!features.includes('temp')&&!features.includes('humi')) return;
   const key='sensorHistory:'+uid+':'+id;
@@ -645,7 +758,7 @@ function drawHistory(){
   const name=(devData[id]?.settings||{}).deviceType||id;
   title.textContent=name+' - '+id;
   if(!data.length){
-    drawEmptyChart(ctx,canvas,'Đang chờ dữ liệu cảm biến 5 phút/lần');
+    drawEmptyChart(ctx,canvas,'Đang chờ dữ liệu cảm biến 3 giây/lần');
     range.textContent='--';
     return;
   }
@@ -702,8 +815,7 @@ function drawEmptyChart(ctx,canvas,text){
 function updateStats(){
   const ids=Object.keys(devData);
   let online=0;
-  const now=Math.floor(Date.now()/1000);
-  ids.forEach(id=>{const d=devData[id]; if(d.last_update&&(now-d.last_update)<15) online++;});
+  ids.forEach(id=>{if(isDeviceOnline(devData[id])) online++;});
   document.getElementById('onlineCount').textContent=online+' thiết bị online';
   document.getElementById('devCountBadge').textContent=ids.length+' thiết bị';
 }
@@ -712,8 +824,30 @@ setInterval(()=>{
   Object.keys(devData).forEach(id=>{maybeStoreHistory(id,devData[id]);renderCard(id,devData[id]);});
   updateStats();
   checkAlerts();
-},10000);
+},3000);
 
+function getLastUpdateMs(v){
+  if(!validNumber(v)) return null;
+  const n=Number(v);
+  if(n>1000000000000) return n;
+  if(n>946684800) return n*1000;
+  return null;
+}
+function getDeviceLastSeenMs(d){
+  const ts=getLastUpdateMs(d?.last_seen_ms) || getLastUpdateMs(d?.last_update);
+  if(ts) return ts;
+  if(d?.status==='online' && validNumber(d?.last_update)) return Date.now();
+  return null;
+}
+function isDeviceOnline(d){
+  const ts=getDeviceLastSeenMs(d);
+  return !!ts && Date.now()-ts<onlineWindowMs;
+}
+function normalizeRelay(v){
+  if(v===true || v===1 || v==='1') return 1;
+  if(v===false || v===0 || v==='0') return 0;
+  return null;
+}
 function isOutOfRange(v,min,max){return validNumber(v)&&(Number(v)<Number(min)||Number(v)>Number(max));}
 function validNumber(v){return v!==null&&v!==undefined&&!Number.isNaN(Number(v));}
 function readNumber(id,fallback){const n=Number(document.getElementById(id).value);return Number.isNaN(n)?fallback:n;}
