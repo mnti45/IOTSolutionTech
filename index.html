@@ -405,7 +405,10 @@ function renderCard(id,d){
   const features=(d.features||'').split(',');
   const relayOn=d.relay===1;
   const ts=d.last_update?new Date(d.last_update*1000).toLocaleTimeString('vi-VN'):'--';
-  const isOnline=d.status==='online';
+
+  // Kiểm tra online: last_update trong vòng 15s
+  const now=Math.floor(Date.now()/1000);
+  const isOnline=d.last_update && (now - d.last_update) < 15;
 
   let sensorHtml='';
   if(features.includes('temp')||features.includes('humi')){
@@ -463,9 +466,10 @@ function toggleRelay(id,state){
 function updateStats(){
   const ids=Object.keys(devData);
   let online=0,relayOn=0,tempSum=0,tempCount=0;
+  const now2=Math.floor(Date.now()/1000);
   ids.forEach(id=>{
     const d=devData[id];
-    if(d.status==='online') online++;
+    if(d.last_update&&(now2-d.last_update)<15) online++;
     if(d.relay===1) relayOn++;
     if(d.temp&&d.temp>0){tempSum+=d.temp;tempCount++;}
   });
@@ -476,6 +480,12 @@ function updateStats(){
   document.getElementById('onlineCount').textContent=online+' thiết bị online';
   document.getElementById('devCountBadge').textContent=ids.length+' thiết bị';
 }
+
+// Tự kiểm tra online/offline mỗi 10s dù không có dữ liệu mới
+setInterval(()=>{
+  Object.keys(devData).forEach(id=>renderCard(id,devData[id]));
+  updateStats();
+}, 10000);
 
 function fErr(c){
   return({'auth/invalid-email':'Email không hợp lệ','auth/user-not-found':'Tài khoản không tồn tại',
