@@ -167,7 +167,12 @@ button,input,select{font-family:inherit;}
 .historyTools select{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 12px;outline:none;}
 .chartPanel{padding:16px;}
 .chartMeta{display:flex;justify-content:space-between;gap:12px;color:var(--text2);font-size:12px;margin-bottom:12px;}
-#historyChart{width:100%;height:360px;display:block;background:#111522;border:1px solid var(--border);border-radius:12px;}
+#historyChart{width:100%;height:360px;display:block;border-radius:12px;}
+.chartWrap{position:relative;background:#111522;border:1px solid var(--border);border-radius:12px;padding:12px;}
+.rangeBtn{padding:6px 12px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+  border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;}
+.rangeBtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.rangeBtns{display:flex;gap:6px;}
 .legend{display:flex;gap:14px;margin-top:12px;font-size:12px;color:var(--text2);}
 .legendItem{display:flex;align-items:center;gap:6px;}
 .legendDot{width:10px;height:10px;border-radius:50%;}
@@ -302,13 +307,21 @@ button,input,select{font-family:inherit;}
         </div>
         <div class="historyTools">
           <select id="historyDevice" onchange="drawHistory()"></select>
+          <div class="rangeBtns">
+            <button class="rangeBtn active" onclick="setRange(30,this)">30 phút</button>
+            <button class="rangeBtn" onclick="setRange(60,this)">1 giờ</button>
+            <button class="rangeBtn" onclick="setRange(360,this)">6 giờ</button>
+            <button class="rangeBtn" onclick="setRange(1440,this)">24 giờ</button>
+          </div>
         </div>
         <div class="panel chartPanel">
           <div class="chartMeta">
             <span id="historyTitle">Chưa có dữ liệu</span>
             <span id="historyRange">--</span>
           </div>
-          <canvas id="historyChart" width="1200" height="360"></canvas>
+          <div class="chartWrap">
+            <canvas id="historyChart"></canvas>
+          </div>
           <div class="legend">
             <div class="legendItem"><span class="legendDot temp"></span> Nhiệt độ (°C)</div>
             <div class="legendItem"><span class="legendDot humi"></span> Độ ẩm (%)</div>
@@ -338,6 +351,7 @@ button,input,select{font-family:inherit;}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 firebase.initializeApp({
   apiKey:"AIzaSyAGbBQEiilbwkj6Shq4E-HEuWb1l3yaBUI",
@@ -350,8 +364,9 @@ firebase.initializeApp({
 });
 const auth=firebase.auth(), db=firebase.database();
 let uid=null, listeners={}, devData={}, activeSection='devices', audioCtx=null, lastAlarmAt={}, pendingRelay={}, wifiFormDirty=false;
-const sampleEveryMs=3000;
-const onlineWindowMs=12000;
+let historyChart=null, historyRangeMin=30;
+const sampleEveryMs=15000; // Lưu lịch sử mỗi 15s, tránh quá dày
+const onlineWindowMs=25000;
 
 auth.onAuthStateChanged(u=>{
   if(u){
@@ -418,7 +433,7 @@ function claimDevice(){
     if(d.claimed){msg.className='addMsg err';msg.textContent='Thiết bị đã được đăng ký';return;}
     db.ref('devices/'+id).update({claimed:true,owner:uid});
     db.ref('users/'+uid+'/devices/'+id).set(true);
-    db.ref('users/'+uid+'/deviceSettings/'+id).set(defaultSettings(d.name||'Relay Thông Minh'));
+    db.ref('users/'+uid+'/deviceSettings/'+id).set(defaultSettings(d.display_name||d.name||'Relay Thông Minh'));
     document.getElementById('addId').value='';
     document.getElementById('addSecret').value='';
     msg.className='addMsg ok'; msg.textContent='Kích hoạt thành công!';
@@ -447,7 +462,12 @@ function listenDevice(id){
     if(snap.exists()){
       const device=snap.val();
       db.ref('users/'+uid+'/deviceSettings/'+id).once('value').then(settingSnap=>{
-        devData[id]={...device, settings:{...defaultSettings(device.name||'Relay Thông Minh'), ...(settingSnap.val()||{})}};
+        const existingSettings=devData[id]?.settings;
+        const newSettings=settingSnap.val()||{};
+        devData[id]={...device, settings: existingSettings
+          ? {...existingSettings,...newSettings}
+          : {...defaultSettings(device.display_name||device.name||'Relay Thông Minh'),...newSettings}
+        };
         maybeStoreHistory(id,devData[id]);
         renderCard(id,devData[id]);
         updateStats();
@@ -486,7 +506,7 @@ function renderCard(id,d){
   const ts=tsMs?new Date(tsMs).toLocaleTimeString('vi-VN'):'--';
   const isOnline=isDeviceOnline(d);
   card.classList.toggle('offline',!isOnline);
-  const settings=d.settings||defaultSettings(d.name||id);
+  const settings=d.settings||defaultSettings(d.display_name||d.name||id);
   const tempWarn=features.includes('temp') && isOutOfRange(d.temp,settings.tempMin,settings.tempMax);
   const humiWarn=features.includes('humi') && isOutOfRange(d.humi,settings.humiMin,settings.humiMax);
 
@@ -560,7 +580,7 @@ function renderSettings(){
     return;
   }
   box.innerHTML=ids.map(id=>{
-    const s=devData[id].settings||defaultSettings(devData[id].name||id);
+    const s=devData[id].settings||defaultSettings(devData[id].display_name||devData[id].name||id);
     return `<div class="panel settingsCard">
       <h3>${escapeHtml(s.deviceType||id)}</h3>
       <div class="devId">${id}</div>
@@ -598,8 +618,9 @@ function saveSettings(id){
     alarmEnabled:document.getElementById('alarm-'+id).checked
   };
   db.ref('users/'+uid+'/deviceSettings/'+id).set(settings).then(()=>{
-    devData[id].settings=settings;
+    if(devData[id]) devData[id].settings={...devData[id].settings,...settings};
     renderCard(id,devData[id]);
+    renderSettings();
     checkAlerts();
     const msg=document.getElementById('save-'+id);
     msg.textContent='Đã lưu';
@@ -616,7 +637,7 @@ function renderWifiSettings(){
   }
   box.innerHTML=ids.map(id=>{
     const d=devData[id];
-    const s=d.settings||defaultSettings(d.name||id);
+    const s=d.settings||defaultSettings(d.display_name||d.name||id);
     const wifi=d.wifi_config||{};
     const pending=wifi.ssid?`WiFi dự phòng hiện tại: ${escapeHtml(wifi.ssid)}`:'Chưa đặt WiFi dự phòng';
     const synced=wifi.ssid?(wifi.synced?'ESP đã nhận cấu hình':'Đang chờ ESP nhận cấu hình'):'--';
@@ -680,7 +701,7 @@ function saveWifiSettings(id){
 function checkAlerts(){
   const messages=[];
   Object.keys(devData).forEach(id=>{
-    const d=devData[id], s=d.settings||defaultSettings(d.name||id);
+    const d=devData[id], s=d.settings||defaultSettings(d.display_name||d.name||id);
     if(!isDeviceOnline(d)) return;
     const name=s.deviceType||id;
     let deviceAlert=false;
@@ -729,7 +750,7 @@ function maybeStoreHistory(id,d){
   if(last && last.t===bucket) return;
   items.push({t:bucket,temp:validNumber(d.temp)?Number(d.temp):null,humi:validNumber(d.humi)?Number(d.humi):null});
   localStorage.setItem(key,JSON.stringify(items.slice(-288)));
-  if(activeSection==='history') drawHistory();
+  // Không redraw ngay - chỉ update khi user đang xem tab lịch sử
 }
 
 function refreshHistorySelect(){
@@ -741,76 +762,114 @@ function refreshHistorySelect(){
   drawHistory();
 }
 
+function setRange(min, btn) {
+  historyRangeMin = min;
+  document.querySelectorAll('.rangeBtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  drawHistory();
+}
+
 function drawHistory(){
-  const canvas=document.getElementById('historyChart');
-  const ctx=canvas.getContext('2d');
-  ctx.clearRect(0,0,canvas.width,canvas.height);
   const id=document.getElementById('historyDevice').value;
   const title=document.getElementById('historyTitle');
   const range=document.getElementById('historyRange');
-  if(!id){
-    drawEmptyChart(ctx,canvas,'Chưa có thiết bị');
-    title.textContent='Chưa có dữ liệu';
-    range.textContent='--';
-    return;
-  }
-  const data=JSON.parse(localStorage.getItem('sensorHistory:'+uid+':'+id)||'[]');
+  if(!id){ title.textContent='Chưa có dữ liệu'; range.textContent='--'; destroyChart(); return; }
+  const allData=JSON.parse(localStorage.getItem('sensorHistory:'+uid+':'+id)||'[]');
   const name=(devData[id]?.settings||{}).deviceType||id;
   title.textContent=name+' - '+id;
-  if(!data.length){
-    drawEmptyChart(ctx,canvas,'Đang chờ dữ liệu cảm biến 3 giây/lần');
-    range.textContent='--';
-    return;
-  }
-  range.textContent=new Date(data[0].t).toLocaleTimeString('vi-VN')+' - '+new Date(data[data.length-1].t).toLocaleTimeString('vi-VN');
-  drawLineChart(ctx,canvas,data);
+  if(!allData.length){ range.textContent='--'; destroyChart(); return; }
+  // Lọc theo khoảng thời gian
+  const cutoff=Date.now()-historyRangeMin*60*1000;
+  const data=allData.filter(d=>d.t>=cutoff);
+  const show=data.length?data:allData.slice(-20);
+  range.textContent=new Date(show[0].t).toLocaleTimeString('vi-VN')+' → '+new Date(show[show.length-1].t).toLocaleTimeString('vi-VN');
+  renderChartJS(show);
 }
 
-function drawLineChart(ctx,canvas,data){
-  const pad={l:54,r:24,t:22,b:48};
-  const w=canvas.width-pad.l-pad.r, h=canvas.height-pad.t-pad.b;
-  ctx.fillStyle='#111522'; ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.strokeStyle='#2d3348'; ctx.lineWidth=1;
-  ctx.font='12px Inter, sans-serif'; ctx.fillStyle='#94a3b8';
-  for(let i=0;i<=4;i++){
-    const y=pad.t+h*i/4;
-    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+w,y); ctx.stroke();
-    ctx.fillText(String(Math.round(100-(i*25))),12,y+4);
-  }
-  const minT=data[0].t, maxT=data[data.length-1].t||minT+1;
-  const xOf=t=>pad.l+((t-minT)/(maxT-minT||1))*w;
-  const yOf=v=>pad.t+h-(Math.max(0,Math.min(100,v))/100)*h;
-  drawSeries(ctx,data,'temp','#f97316',xOf,yOf);
-  drawSeries(ctx,data,'humi','#38bdf8',xOf,yOf);
-  ctx.strokeStyle='#94a3b8'; ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,pad.t+h); ctx.lineTo(pad.l+w,pad.t+h); ctx.stroke();
-  const ticks=Math.min(6,data.length);
-  for(let i=0;i<ticks;i++){
-    const item=data[Math.round((data.length-1)*i/(ticks-1||1))];
-    ctx.fillStyle='#94a3b8';
-    ctx.fillText(new Date(item.t).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}),xOf(item.t)-18,pad.t+h+28);
-  }
+function destroyChart(){
+  if(historyChart){ historyChart.destroy(); historyChart=null; }
 }
-function drawSeries(ctx,data,key,color,xOf,yOf){
-  ctx.strokeStyle=color; ctx.lineWidth=3; ctx.beginPath();
-  let started=false;
-  data.forEach(item=>{
-    if(!validNumber(item[key])) return;
-    const y=yOf(Number(item[key])), x=xOf(item.t);
-    if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);
+
+function renderChartJS(data){
+  destroyChart();
+  const labels=data.map(d=>new Date(d.t).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}));
+  const temps=data.map(d=>validNumber(d.temp)?Number(d.temp):null);
+  const humis=data.map(d=>validNumber(d.humi)?Number(d.humi):null);
+  const ctx=document.getElementById('historyChart').getContext('2d');
+  historyChart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'Nhiệt độ (°C)',
+          data:temps,
+          borderColor:'#f97316',
+          backgroundColor:'#f9731620',
+          borderWidth:2,
+          pointRadius:3,
+          pointHoverRadius:6,
+          tension:0.4,
+          fill:true,
+          yAxisID:'y'
+        },
+        {
+          label:'Độ ẩm (%)',
+          data:humis,
+          borderColor:'#38bdf8',
+          backgroundColor:'#38bdf820',
+          borderWidth:2,
+          pointRadius:3,
+          pointHoverRadius:6,
+          tension:0.4,
+          fill:true,
+          yAxisID:'y1'
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{
+          labels:{color:'#94a3b8',font:{size:12}}
+        },
+        tooltip:{
+          backgroundColor:'#1a1d27',
+          borderColor:'#2d3348',
+          borderWidth:1,
+          titleColor:'#f1f5f9',
+          bodyColor:'#94a3b8',
+          callbacks:{
+            label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)??'--'}`
+          }
+        }
+      },
+      scales:{
+        x:{
+          ticks:{color:'#94a3b8',maxTicksLimit:8,font:{size:11}},
+          grid:{color:'#2d334820'}
+        },
+        y:{
+          position:'left',
+          title:{display:true,text:'°C',color:'#f97316'},
+          ticks:{color:'#f97316',font:{size:11}},
+          grid:{color:'#2d334830'}
+        },
+        y1:{
+          position:'right',
+          title:{display:true,text:'%',color:'#38bdf8'},
+          ticks:{color:'#38bdf8',font:{size:11}},
+          grid:{drawOnChartArea:false}
+        }
+      }
+    }
   });
-  ctx.stroke();
-  ctx.fillStyle=color;
-  data.forEach(item=>{
-    if(!validNumber(item[key])) return;
-    ctx.beginPath(); ctx.arc(xOf(item.t),yOf(Number(item[key])),4,0,Math.PI*2); ctx.fill();
-  });
 }
-function drawEmptyChart(ctx,canvas,text){
-  ctx.fillStyle='#111522'; ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle='#94a3b8'; ctx.font='18px Inter, sans-serif'; ctx.textAlign='center';
-  ctx.fillText(text,canvas.width/2,canvas.height/2);
-  ctx.textAlign='left';
-}
+
+function drawEmptyChart(){}
+function drawLineChart(){}
+function drawSeries(){}
 
 function updateStats(){
   const ids=Object.keys(devData);
@@ -824,24 +883,28 @@ setInterval(()=>{
   Object.keys(devData).forEach(id=>{maybeStoreHistory(id,devData[id]);renderCard(id,devData[id]);});
   updateStats();
   checkAlerts();
-},3000);
+  if(activeSection==='history') drawHistory();
+},15000);
 
 function getLastUpdateMs(v){
   if(!validNumber(v)) return null;
   const n=Number(v);
-  if(n>1000000000000) return n;
-  if(n>946684800) return n*1000;
+  if(n>1000000000000) return n;       // ms timestamp
+  if(n>946684800) return n*1000;      // seconds Unix timestamp
   return null;
 }
 function getDeviceLastSeenMs(d){
-  const ts=getLastUpdateMs(d?.last_seen_ms) || getLastUpdateMs(d?.last_update);
-  if(ts) return ts;
-  if(d?.status==='online' && validNumber(d?.last_update)) return Date.now();
+  const ms=getLastUpdateMs(d?.last_seen_ms);
+  if(ms) return ms;
+  if(d?.status==='online') return Date.now();
   return null;
 }
 function isDeviceOnline(d){
-  const ts=getDeviceLastSeenMs(d);
-  return !!ts && Date.now()-ts<onlineWindowMs;
+  // Nếu có last_seen_ms thì dùng để check thời gian
+  const ms=getLastUpdateMs(d?.last_seen_ms);
+  if(ms) return Date.now()-ms < onlineWindowMs;
+  // Fallback: tin vào status field do ESP32 ghi
+  return d?.status==='online';
 }
 function normalizeRelay(v){
   if(v===true || v===1 || v==='1') return 1;
